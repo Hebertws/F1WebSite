@@ -1,0 +1,46 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 48 28" fill="none" aria-hidden="true">
+  <defs>
+    <linearGradient id="light-on" x1="0" y1="0" x2="0" y2="1">
+      <stop stop-color="#ff4d55"/>
+      <stop offset="1" stop-color="#ad111b"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="1.2" result="blur"/>
+      <feMerge>
+        <feMergeNode in="blur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+
+  <!-- Badge com recorte inclinado, no estilo timing board -->
+  <path
+    d="M0 0 H46.5 L40.5 28 H0 Z"
+    fill="#111318"
+    stroke="rgba(255,255,255,0.12)"
+    stroke-width="1"
+  />
+
+  <!-- Luzes de partida -->
+  <circle cx="9" cy="14" r="3.6" fill="url(#light-on)" filter="url(#glow)"/>
+  <circle cx="17" cy="14" r="3.6" fill="url(#light-on)" filter="url(#glow)"/>
+  <circle cx="25" cy="14" r="3.6" fill="url(#light-on)" filter="url(#glow)"/>
+  <circle cx="33" cy="14" r="3.6" fill="url(#light-on)" filter="url(#glow)"/>
+  <circle cx="41" cy="14" r="3.6" fill="url(#light-on)" filter="url(#glow)"/>
+
+  <!-- Detalhe de velocidade -->
+  <path
+    d="M6 22 H28"
+    stroke="#f5222d"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    opacity="0.85"
+  />
+  <path
+    d="M6 22 H18"
+    stroke="#f6f7f9"
+    stroke-width="1.5"
+    stroke-linecap="round"
+    opacity="0.55"
+  />
+</svg>
