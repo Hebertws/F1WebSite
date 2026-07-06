@@ -41,17 +41,17 @@ let drivers = [
     number: 12,
     team: "Mercedes",
     country: "Itália",
-    points: 156,
+    points: 179,
     wins: 5,
-    podiums: 6,
-    style: "Líder do campeonato até o GP da Áustria, combina velocidade pura com uma temporada muito forte em resultados.",
+    podiums: 7,
+    style: "Amplia a liderança do campeonato após o Sprint da Grã-Bretanha, com 43 pontos de vantagem sobre Russell, e cravou a pole em Silverstone.",
   },
   {
     name: "Lewis Hamilton",
     number: 44,
     team: "Ferrari",
     country: "Reino Unido",
-    points: 115,
+    points: 132,
     wins: 1,
     podiums: 4,
     style: "Experiência absurda em leitura de corrida, pneus e momentos de mudança de condição da pista.",
@@ -61,17 +61,17 @@ let drivers = [
     number: 63,
     team: "Mercedes",
     country: "Reino Unido",
-    points: 106,
-    wins: 1,
-    podiums: 3,
-    style: "Regular e técnico, chega à Áustria embalado pela pole position em Spielberg.",
+    points: 136,
+    wins: 2,
+    podiums: 4,
+    style: "Venceu na Áustria após pole polêmica sob bandeira amarela — sua segunda vitória na temporada e sétima da carreira.",
   },
   {
     name: "Charles Leclerc",
     number: 16,
     team: "Ferrari",
     country: "Mônaco",
-    points: 75,
+    points: 83,
     wins: 0,
     podiums: 3,
     style: "Especialista em voltas de classificação, costuma extrair tudo do carro quando a pista está no limite.",
@@ -81,7 +81,7 @@ let drivers = [
     number: 4,
     team: "McLaren",
     country: "Reino Unido",
-    points: 73,
+    points: 85,
     wins: 0,
     podiums: 2,
     style: "Rápido em ritmo de corrida e muito forte quando precisa administrar pneus por vários stints.",
@@ -91,7 +91,7 @@ let drivers = [
     number: 81,
     team: "McLaren",
     country: "Austrália",
-    points: 68,
+    points: 82,
     wins: 0,
     podiums: 2,
     style: "Calmo sob pressão, com ótima capacidade de evoluir durante o fim de semana.",
@@ -101,9 +101,9 @@ let drivers = [
     number: 1,
     team: "Red Bull Racing",
     country: "Países Baixos",
-    points: 55,
+    points: 76,
     wins: 0,
-    podiums: 1,
+    podiums: 2,
     style: "Muito preciso em duelos roda a roda e consistente quando precisa transformar vantagem em resultado.",
   },
   {
@@ -121,7 +121,7 @@ let drivers = [
     number: 6,
     team: "Red Bull Racing",
     country: "França",
-    points: 34,
+    points: 42,
     wins: 0,
     podiums: 0,
     style: "Promovido à Red Bull Racing em 2026, tem mostrado velocidade forte em classificação.",
@@ -131,7 +131,7 @@ let drivers = [
     number: 30,
     team: "Racing Bulls",
     country: "Nova Zelândia",
-    points: 28,
+    points: 31,
     wins: 0,
     podiums: 0,
     style: "Combativo e consistente, vem pontuando em corridas de oportunidade.",
@@ -161,7 +161,7 @@ let drivers = [
     number: 7,
     team: "Racing Bulls",
     country: "Reino Unido",
-    points: 13,
+    points: 14,
     wins: 0,
     podiums: 0,
     style: "Rookie da temporada, traz agressividade de base e aprendizado rápido no grid.",
@@ -496,11 +496,27 @@ const guideTerms = [
     link: "#guia-pneus",
   },
   {
+    title: "Cores de setor",
+    icon: "gauge",
+    accent: "#b16bf5",
+    description:
+      "Amarelo é mais lento, verde é mais rápido e roxo é o melhor tempo do grid naquele trecho da pista.",
+    link: "#guia-setores",
+  },
+  {
     title: "Sprint",
     icon: "zap",
     accent: "#f5222d",
     description:
       "Uma corrida curta em alguns fins de semana. Ela distribui pontos e muda o ritmo do evento, com menos treinos e mais momentos valendo resultado.",
+  },
+  {
+    title: "Penalidades",
+    icon: "gavel",
+    accent: "#f5222d",
+    description:
+      "Vão de uma simples advertência até perder posições no grid. Quanto mais grave a infração, maior o preço pago em tempo ou posição.",
+    link: "#guia-penalidades",
   },
 ];
 
@@ -586,7 +602,91 @@ const tireTips = [
   },
 ];
 
-// Calendário da temporada — o campo "raceDate" é a data REAL da corrida
+// Cores de setor: o retângulo colorido ao lado do tempo de volta na
+// transmissão. Compara o tempo do piloto naquele trecho da pista com
+// referências da própria sessão — não é sobre a corrida toda, é setor a setor.
+const sectorColors = [
+  {
+    name: "Amarelo",
+    color: "var(--yellow)",
+    label: "Mais lento",
+    description:
+      "O piloto passou por aquele setor mais devagar do que o próprio melhor tempo já registrado ali na sessão.",
+  },
+  {
+    name: "Verde",
+    color: "var(--green)",
+    label: "Melhora pessoal",
+    description:
+      "O piloto superou o próprio melhor tempo de setor da sessão — uma melhora em relação a si mesmo, não necessariamente o mais rápido do grid.",
+  },
+  {
+    name: "Roxo",
+    color: "var(--purple)",
+    label: "Melhor do grid",
+    description:
+      "É o setor mais rápido entre todos os pilotos na sessão até aquele momento — o destaque roxo muda de dono a cada vez que alguém bate essa marca.",
+  },
+];
+
+// Penalidades: ordenadas da mais leve para a mais grave. O campo "level"
+// (1 a 4) alimenta o indicador visual de severidade na seção dedicada.
+const penalties = [
+  {
+    name: "Advertência",
+    icon: "message-square-warning",
+    level: 1,
+    severity: "Leve",
+    color: "var(--cyan)",
+    description:
+      "Um registro oficial de conduta irregular, sem perda de tempo ou posição na hora. Mas 3 advertências na mesma temporada somam 10 posições de penalidade no grid.",
+  },
+  {
+    name: "Penalidade de tempo",
+    icon: "timer",
+    level: 2,
+    severity: "Moderada",
+    color: "var(--yellow)",
+    description:
+      "Geralmente 5 ou 10 segundos, somados ao tempo final de corrida do piloto depois da bandeirada. Pode derrubar posições sem tirar o carro da pista.",
+  },
+  {
+    name: "Drive-through",
+    icon: "corner-down-right",
+    level: 2,
+    severity: "Moderada",
+    color: "var(--yellow)",
+    description:
+      "O piloto entra nos boxes, atravessa respeitando o limite de velocidade da pit lane e volta à pista sem parar. Custa vários segundos reais de perda.",
+  },
+  {
+    name: "Stop-and-go",
+    icon: "octagon-pause",
+    level: 3,
+    severity: "Grave",
+    color: "var(--red)",
+    description:
+      "Parada obrigatória no próprio box do time por um tempo determinado (geralmente 10s), sem nenhum serviço no carro durante a parada.",
+  },
+  {
+    name: "Penalidade de grid",
+    icon: "arrow-down-to-line",
+    level: 3,
+    severity: "Grave",
+    color: "var(--red)",
+    description:
+      "Faz o piloto largar mais atrás do que sua posição de classificação — comum após trocar peças de motor além do limite da temporada.",
+  },
+  {
+    name: "Pontos na superlicença",
+    icon: "credit-card",
+    level: 4,
+    severity: "Acumulativa",
+    color: "var(--purple)",
+    description:
+      "Cada infração soma pontos na licença do piloto. Ao atingir 12 pontos em 12 meses, ele é suspenso automaticamente de uma corrida.",
+  },
+];
 // (domingo, formato "AAAA-MM-DD"). O site usa essa data para descobrir
 // automaticamente qual etapa está "Concluído", "Atual" ou "Próximo", troca
 // o mapa do circuito e preenche o card "Fim de semana" (nome, voltas, km,
@@ -600,9 +700,9 @@ const calendar = [
   { round: 5, race: "Canadá", track: "Montreal", raceDate: "2026-05-24", focus: "Antonelli venceu", sprint: true, laps: 70, length: "4,361 km", description: "Pista semi-urbana com freadas pesadas e o famoso 'Muro dos Campeões' na saída da última chicane." },
   { round: 6, race: "Mônaco", track: "Monte Carlo", raceDate: "2026-06-07", focus: "Antonelli venceu", laps: 78, length: "3,337 km", description: "O circuito mais lento e estreito do calendário, onde a classificação costuma decidir o resultado da corrida." },
   { round: 7, race: "Espanha", track: "Barcelona-Catalunya", raceDate: "2026-06-14", focus: "Hamilton venceu", laps: 66, length: "4,675 km", description: "Última edição em Barcelona antes da mudança para Madrid, com uma mistura clássica de curvas técnicas e rápidas." },
-  { round: 8, race: "Áustria", track: "Red Bull Ring", raceDate: "2026-06-28", focus: "Russell na pole", laps: 71, length: "4,318 km", description: "A pista é curta, tem subidas fortes, freadas importantes e uma sequência final rápida que costuma punir qualquer erro de trajetória." },
-  { round: 9, race: "Grã-Bretanha", track: "Silverstone", raceDate: "2026-07-05", focus: "curvas rápidas", sprint: true, laps: 52, length: "5,891 km", description: "Lar histórico da F1, com a sequência rápida de Maggots-Becketts-Chapel entre as mais desafiadoras do calendário." },
-  { round: 10, race: "Bélgica", track: "Spa-Francorchamps", raceDate: "2026-07-19", focus: "alta velocidade", laps: 44, length: "7,004 km", description: "A pista mais longa do calendário, com a icônica subida de Eau Rouge/Raidillon tomada em velocidade máxima." },
+  { round: 8, race: "Áustria", track: "Red Bull Ring", raceDate: "2026-06-28", focus: "Russell venceu", laps: 71, length: "4,318 km", description: "A pista é curta, tem subidas fortes, freadas importantes e uma sequência final rápida que costuma punir qualquer erro de trajetória." },
+  { round: 9, race: "Grã-Bretanha", track: "Silverstone", raceDate: "2026-07-05", focus: "Antonelli na pole", sprint: true, laps: 52, length: "5,891 km", description: "Lar histórico da F1, com a sequência rápida de Maggots-Becketts-Chapel entre as mais desafiadoras do calendário.", sessionTimes: { sprint: "08:00", qualifying: "12:00", race: "11:00" } },
+  { round: 10, race: "Bélgica", track: "Spa-Francorchamps", raceDate: "2026-07-19", focus: "alta velocidade", laps: 44, length: "7,004 km", description: "A pista mais longa do calendário, com a icônica subida de Eau Rouge/Raidillon tomada em velocidade máxima.", sessionTimes: { practice1: "08:00 (estimado)", qualifying: "08:00 (estimado)", race: "10:00" } },
   { round: 11, race: "Hungria", track: "Budapeste", raceDate: "2026-07-26", focus: "tração", laps: 70, length: "4,381 km", description: "Traçado apertado e sinuoso, às vezes comparado a um 'Mônaco sem o glamour', onde a estratégia pesa mais que a ultrapassagem." },
   { round: 12, race: "Países Baixos", track: "Zandvoort", raceDate: "2026-08-23", focus: "inclinação", sprint: true, laps: 72, length: "4,259 km", description: "Circuito litorâneo entre dunas, com a curva final em banking de 18° e a torcida laranja de Verstappen lotando as arquibancadas." },
   { round: 13, race: "Itália", track: "Monza", raceDate: "2026-09-06", focus: "velocidade máxima", laps: 53, length: "5,793 km", description: "O 'Templo da Velocidade': cerca de 75% da volta é feita em aceleração máxima, com pouquíssimo downforce no carro." },
@@ -707,28 +807,29 @@ function formatWeekendRange(item) {
   return `${start.getDate()}-${end.getDate()} ${month}`;
 }
 
-// Monta os três horários de sessão padrão do fim de semana. Os horários são
-// aproximações típicas de um fim de semana de F1 (convencional ou sprint);
-// se quiser os horários oficiais exatos de uma etapa específica, edite o
-// array "sessions" retornado aqui para aquele item.
+// Monta os três (ou quatro, se sprint) horários de sessão do fim de semana.
+// Por padrão usa horários aproximados típicos de F1. Se a etapa tiver o
+// campo "sessionTimes" preenchido (horário de Brasília, oficial), esses
+// valores substituem a aproximação — ver os objetos do array "calendar".
 function buildSessions(item) {
   const { start, end } = getRaceWeekend(item);
   const saturday = new Date(start);
   saturday.setDate(saturday.getDate() + 1);
   const fmt = (d) => `${d.getDate()} ${monthNamesPt[d.getMonth()]}`;
+  const t = item.sessionTimes || {};
 
   if (item.sprint) {
     return [
-      ["Sprint Qualifying", `${fmt(start)} 11:30`],
-      ["Sprint", `${fmt(saturday)} 11:00`],
-      ["Classificação", `${fmt(saturday)} 15:00`],
-      ["Corrida", `${fmt(end)} 13:00`],
+      ["Sprint Qualifying", `${fmt(start)} ${t.sprintQualifying || "11:30"}`],
+      ["Sprint", `${fmt(saturday)} ${t.sprint || "11:00"}`],
+      ["Classificação", `${fmt(saturday)} ${t.qualifying || "15:00"}`],
+      ["Corrida", `${fmt(end)} ${t.race || "13:00"}`],
     ];
   }
   return [
-    ["Treino livre 1", `${fmt(start)} 11:30`],
-    ["Classificação", `${fmt(saturday)} 14:00`],
-    ["Corrida", `${fmt(end)} 13:00`],
+    ["Treino livre 1", `${fmt(start)} ${t.practice1 || "11:30"}`],
+    ["Classificação", `${fmt(saturday)} ${t.qualifying || "14:00"}`],
+    ["Corrida", `${fmt(end)} ${t.race || "13:00"}`],
   ];
 }
 
@@ -987,6 +1088,72 @@ function renderTires() {
   wireTireSounds();
 }
 
+function renderSectors() {
+  // Mini "cronômetro" ilustrativo: mostra como as três caixinhas de setor
+  // aparecem lado a lado na tela da transmissão, cada uma com uma cor.
+  byId("sector-timing-demo").innerHTML = sectorColors
+    .map(
+      (sector, index) => `
+        <div class="sector-box" style="--sector-color:${sector.color}">
+          <span>S${index + 1}</span>
+        </div>
+      `
+    )
+    .join("");
+
+  byId("sector-color-grid").innerHTML = sectorColors
+    .map(
+      (sector) => `
+        <article class="sector-card" style="--sector-color:${sector.color}">
+          <div class="sector-swatch"></div>
+          <div class="sector-card-body">
+            <div class="sector-card-head">
+              <h4>${sector.name}</h4>
+              <span class="sector-tag">${sector.label}</span>
+            </div>
+            <p>${sector.description}</p>
+          </div>
+        </article>
+      `
+    )
+    .join("");
+}
+
+function renderPenalties() {
+  byId("penalty-grid").innerHTML = penalties
+    .map((penalty) => {
+      // Termômetro de gravidade: 4 barrinhas, preenchidas até o "level"
+      // da penalidade (1 = mais leve, 4 = mais grave/acumulativa).
+      const bars = [1, 2, 3, 4]
+        .map(
+          (step) =>
+            `<span class="${step <= penalty.level ? "is-filled" : ""}"></span>`
+        )
+        .join("");
+
+      return `
+        <article class="penalty-card" style="--penalty-color:${penalty.color}">
+          <div class="penalty-card-icon">
+            <i data-lucide="${penalty.icon}"></i>
+          </div>
+          <div class="penalty-card-body">
+            <div class="penalty-card-head">
+              <h4>${penalty.name}</h4>
+              <span class="penalty-tag">${penalty.severity}</span>
+            </div>
+            <p>${penalty.description}</p>
+            <div class="penalty-meter" aria-hidden="true">${bars}</div>
+          </div>
+        </article>
+      `;
+    })
+    .join("");
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
 function renderDrivers() {
   const [spotlight, ...rest] = sortedDrivers();
   byId("spotlight-name").textContent = spotlight.name;
@@ -1079,13 +1246,39 @@ function renderSimulatorControls() {
       return `
         <div class="position-control">
           <label for="position-${index}">P${index + 1} · ${points} pts</label>
-          <select id="position-${index}" data-position="${index}">${options}</select>
+          <select id="position-${index}" data-position="${index}" data-previous="${ordered[index].name}">${options}</select>
         </div>
       `;
     })
     .join("");
 
-  byId("position-grid").addEventListener("change", renderProjection);
+  byId("position-grid").addEventListener("change", handlePositionChange);
+}
+
+// Quando o usuário escolhe, num select, um piloto que já está selecionado
+// em outra posição, os dois trocam de lugar — em vez de deixar o mesmo
+// piloto duplicado em duas posições ao mesmo tempo.
+function handlePositionChange(event) {
+  const changedSelect = event.target;
+  if (changedSelect.tagName !== "SELECT") return;
+
+  const newValue = changedSelect.value;
+  const oldValue = changedSelect.dataset.previous;
+
+  const duplicateSelect = [...document.querySelectorAll("#position-grid select")].find(
+    (select) => select !== changedSelect && select.value === newValue
+  );
+
+  if (duplicateSelect) {
+    // O piloto que "saiu" da posição alterada assume a posição que antes
+    // pertencia ao piloto recém-escolhido — uma troca completa.
+    duplicateSelect.value = oldValue;
+    duplicateSelect.dataset.previous = oldValue;
+  }
+
+  changedSelect.dataset.previous = newValue;
+
+  renderProjection();
 }
 
 function selectedRaceResult() {
@@ -1178,7 +1371,9 @@ function randomizeSimulator() {
   }
 
   document.querySelectorAll("#position-grid select").forEach((select, index) => {
-    select.value = shuffled[index]?.name || drivers[index].name;
+    const name = shuffled[index]?.name || drivers[index].name;
+    select.value = name;
+    select.dataset.previous = name;
   });
   renderProjection();
 }
@@ -1352,6 +1547,8 @@ async function boot() {
   renderConstructors();
   renderGuide();
   renderTires();
+  renderSectors();
+  renderPenalties();
   renderDrivers();
   renderCalendar();
   renderSimulatorControls();

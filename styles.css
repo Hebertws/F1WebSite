@@ -12,6 +12,7 @@
   --yellow: #f9c846;
   --cyan: #32d4d8;
   --green: #26d978;
+  --purple: #b16bf5;
   --radius: 8px;
   --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
 }
@@ -29,6 +30,7 @@ body {
   background: var(--bg);
   color: var(--text);
   font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
 }
 
 body::before {
@@ -93,6 +95,8 @@ img {
   display: flex;
   align-items: center;
   gap: 6px;
+  flex-wrap: wrap;
+  row-gap: 8px;
   color: var(--soft);
   font-size: 0.92rem;
   font-weight: 700;
@@ -103,6 +107,7 @@ img {
 }
 
 .main-nav a {
+  white-space: nowrap;
   position: relative;
   border: 1px solid transparent;
   padding: 10px 12px;
@@ -301,7 +306,7 @@ img {
 }
 
 .section {
-  padding: clamp(58px, 8vw, 96px) clamp(18px, 5vw, 72px);
+  padding: clamp(58px, 8vw, 96px) clamp(16px, 4.2vw, 32px);
 }
 
 .section-heading {
@@ -1022,6 +1027,225 @@ td:last-child {
   line-height: 1.6;
 }
 
+/* ===== Cores de setor ===== */
+
+.sectors-layout {
+  max-width: 1120px;
+  margin: 32px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sectors-intro {
+  grid-column: span 3;
+}
+
+.sectors-intro h3 {
+  margin: 0 0 12px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.9rem;
+  text-transform: uppercase;
+}
+
+.sectors-intro p {
+  margin: 0;
+  max-width: 720px;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+/* Mockup ilustrativo das três caixinhas de setor, como na transmissão. */
+.sector-timing-demo {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.sector-box {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 40px;
+  border-radius: 4px;
+  background: var(--sector-color, var(--muted));
+  color: #08090b;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+.sector-color-grid {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sector-card {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.sector-swatch {
+  width: 14px;
+  border-radius: 999px;
+  background: var(--sector-color, var(--muted));
+}
+
+.sector-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sector-card-head h4 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.sector-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--sector-color, var(--line));
+  color: var(--sector-color, var(--soft));
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.sector-card-body p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ===== Penalidades ===== */
+
+.penalties-layout {
+  max-width: 1120px;
+  margin: 32px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.penalties-intro {
+  grid-column: span 3;
+}
+
+.penalties-intro h3 {
+  margin: 0 0 12px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.9rem;
+  text-transform: uppercase;
+}
+
+.penalties-intro p {
+  margin: 0;
+  max-width: 720px;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.penalty-grid {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.penalty-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--penalty-color, var(--line));
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.penalty-card-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--penalty-color, var(--muted)) 16%, transparent);
+  color: var(--penalty-color, var(--soft));
+}
+
+.penalty-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.penalty-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.penalty-card-head h4 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+}
+
+.penalty-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--penalty-color, var(--line));
+  color: var(--penalty-color, var(--soft));
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.penalty-card-body p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* Termômetro de gravidade: 4 barrinhas, preenchidas conforme o nível
+   da penalidade (quanto mais preenchido, mais grave). */
+.penalty-meter {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.penalty-meter span {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.penalty-meter span.is-filled {
+  background: var(--penalty-color, var(--muted));
+}
+
 .split-section {
   background:
     linear-gradient(180deg, #0c0e12, #08090b);
@@ -1287,14 +1511,22 @@ td:last-child {
     width: 100%;
     overflow-x: auto;
     padding-bottom: 4px;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
   }
 
   .hero,
   .dashboard-grid,
   .driver-layout,
   .simulator-layout,
-  .tires-layout {
+  .tires-layout,
+  .sectors-layout,
+  .penalties-layout {
     grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding-top: clamp(88px, 12vh, 120px);
   }
 
   .standings-card {
@@ -1303,27 +1535,53 @@ td:last-child {
 
   .guide-grid,
   .calendar-list,
+  .driver-grid,
   .tire-compound-grid,
-  .tire-tips-grid {
-    grid-template-columns: repeat(2, 1fr);
+  .tire-tips-grid,
+  .sector-color-grid,
+  .penalty-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .tires-intro,
   .tires-wet,
   .tire-compound-grid,
-  .tire-tips-grid {
+  .tire-tips-grid,
+  .sectors-intro,
+  .sector-color-grid,
+  .penalties-intro,
+  .penalty-grid {
     grid-column: span 1;
+  }
+
+  .race-ticket {
+    max-width: 420px;
   }
 }
 
 @media (max-width: 640px) {
   .hero {
     min-height: auto;
-    padding-top: 92px;
+    padding: 92px 18px 32px;
   }
 
   .hero h1 {
     font-size: clamp(3.1rem, 18vw, 4.7rem);
+  }
+
+  .hero-content,
+  .race-ticket {
+    max-width: none;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button {
+    width: 100%;
+    max-width: none;
   }
 
   .race-meta,
@@ -1337,13 +1595,23 @@ td:last-child {
   .tire-compound-grid,
   .tire-wet-grid,
   .tire-tips-grid,
-  .tires-layout {
+  .tires-layout,
+  .sector-color-grid,
+  .sectors-layout,
+  .penalty-grid,
+  .penalties-layout {
     grid-template-columns: 1fr;
   }
 
-  .tire-card {
+  .tire-card,
+  .sector-card {
     grid-template-columns: 1fr;
     justify-items: start;
+  }
+
+  .sector-swatch {
+    width: 100%;
+    height: 6px;
   }
 
   .card-header,
@@ -1361,6 +1629,10 @@ td:last-child {
   .calendar-card,
   .spotlight-content {
     padding: 18px;
+  }
+
+  .track-map {
+    height: 220px;
   }
 
   table {
