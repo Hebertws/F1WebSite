@@ -165,6 +165,62 @@ img {
   min-width: 0;
 }
 
+/* Correção de responsividade: itens de CSS Grid (e de flexbox) têm
+   min-width:auto por padrão, ou seja, o navegador não deixa o item
+   encolher além do tamanho "mínimo" do próprio conteúdo (uma palavra
+   grande, uma tag sem quebra de linha, etc). Isso fazia várias grades
+   do site (hero, pneus, setores, penalidades, pilotos...) estourarem a
+   largura da tela em vez de empilhar/quebrar linha, e como o body tem
+   overflow-x:hidden, o resultado era texto e cards cortados nas bordas
+   em vez de um scroll horizontal visível. Zerando o min-width dos itens,
+   eles voltam a encolher e quebrar linha normalmente.
+   Ver: https://css-tricks.com/preventing-a-grid-blowout/ */
+.hero > *,
+.dashboard-grid > *,
+.driver-layout > *,
+.driver-grid > *,
+.guide-grid > *,
+.calendar-list > *,
+.simulator-layout > *,
+.tires-layout > *,
+.tire-compound-grid > *,
+.tire-card > *,
+.tire-wet-grid > *,
+.tire-wet-card > *,
+.tire-tips-grid > *,
+.sectors-layout > *,
+.sector-color-grid > *,
+.sector-card > *,
+.penalties-layout > *,
+.penalty-grid > *,
+.penalty-card > *,
+.constructor-list > *,
+.position-grid > *,
+.ticket-grid > *,
+.race-meta > *,
+.stat-strip > *,
+.mini-stats > *,
+.tire-meta > *,
+.card-header > *,
+.sim-header > *,
+.tire-card-head > *,
+.sector-card-head > *,
+.penalty-card-head > *,
+.session-item > *,
+.driver-card-footer > * {
+  min-width: 0;
+}
+
+/* Rede de segurança extra: se mesmo assim uma palavra isolada for maior
+   que o espaço disponível (textos em português tendem a ter palavras
+   longas, tipo "Intermediário"), ela quebra dentro da própria caixa em
+   vez de vazar para fora e estourar a largura da página. Não afeta os
+   textos com white-space:nowrap (badges, tags), que continuam numa
+   linha só. */
+h1, h2, h3, h4, h5, h6, p, dt, dd, li {
+  overflow-wrap: break-word;
+}
+
 .hero-overlay {
   position: absolute;
   inset: 0;
