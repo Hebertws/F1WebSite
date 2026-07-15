@@ -1,0 +1,1896 @@
+:root {
+  color-scheme: dark;
+  --bg: #08090b;
+  --surface: #111318;
+  --surface-2: #181b22;
+  --line: rgba(255, 255, 255, 0.12);
+  --text: #f6f7f9;
+  --muted: #a9b0bd;
+  --soft: #d5dae3;
+  --red: #f5222d;
+  --red-dark: #ad111b;
+  --yellow: #f9c846;
+  --cyan: #32d4d8;
+  --green: #26d978;
+  --purple: #b16bf5;
+  --radius: 8px;
+  --shadow: 0 24px 80px rgba(0, 0, 0, 0.32);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+  overflow-x: hidden;
+}
+
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  background-image: linear-gradient(rgba(255, 255, 255, 0.04) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.035) 1px, transparent 1px);
+  background-size: 56px 56px;
+  mask-image: linear-gradient(to bottom, rgba(0, 0, 0, 0.75), transparent 72%);
+  z-index: -2;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button,
+select {
+  font: inherit;
+}
+
+img {
+  display: block;
+  max-width: 100%;
+}
+
+.site-header {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 24px;
+  padding: 14px clamp(18px, 4vw, 54px);
+  background: rgba(8, 9, 11, 0.84);
+  border-bottom: 1px solid var(--line);
+  backdrop-filter: blur(18px);
+}
+
+.brand {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.55rem;
+  font-weight: 800;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.brand-mark {
+  width: 48px;
+  height: 28px;
+  flex-shrink: 0;
+}
+
+.main-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-wrap: wrap;
+  row-gap: 8px;
+  color: var(--soft);
+  font-size: 0.92rem;
+  font-weight: 700;
+}
+
+.main-nav::-webkit-scrollbar {
+  display: none;
+}
+
+.main-nav a {
+  white-space: nowrap;
+  position: relative;
+  border: 1px solid transparent;
+  padding: 10px 12px;
+  overflow: hidden;
+  transition: color 0.25s ease, border-color 0.25s ease, background 0.25s ease,
+    transform 0.25s ease;
+}
+
+.main-nav a::after {
+  content: "";
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 6px;
+  height: 2px;
+  background: var(--red);
+  transform: scaleX(0);
+  transform-origin: left;
+  transition: transform 0.28s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.main-nav a:hover {
+  color: var(--text);
+  transform: translateY(-1px);
+}
+
+.main-nav a:hover::after {
+  transform: scaleX(1);
+}
+
+.main-nav a:active {
+  transform: translateY(0);
+}
+
+.hero {
+  position: relative;
+  min-height: min(760px, 84svh);
+  display: grid;
+  align-items: end;
+  grid-template-columns: minmax(0, 1fr) minmax(280px, 420px);
+  gap: clamp(22px, 4vw, 60px);
+  padding: clamp(96px, 13vh, 160px) clamp(18px, 5vw, 72px) clamp(42px, 7vh, 72px);
+  overflow: hidden;
+  background-image: url("assets/hero-race-car.jpg");
+  background-size: cover;
+  background-position: center;
+}
+
+.hero,
+.dashboard-grid,
+.driver-layout,
+.guide-grid,
+.calendar-list,
+.simulator-layout {
+  min-width: 0;
+}
+
+/* Correção de responsividade: itens de CSS Grid (e de flexbox) têm
+   min-width:auto por padrão, ou seja, o navegador não deixa o item
+   encolher além do tamanho "mínimo" do próprio conteúdo (uma palavra
+   grande, uma tag sem quebra de linha, etc). Isso fazia várias grades
+   do site (hero, pneus, setores, penalidades, pilotos...) estourarem a
+   largura da tela em vez de empilhar/quebrar linha, e como o body tem
+   overflow-x:hidden, o resultado era texto e cards cortados nas bordas
+   em vez de um scroll horizontal visível. Zerando o min-width dos itens,
+   eles voltam a encolher e quebrar linha normalmente.
+   Ver: https://css-tricks.com/preventing-a-grid-blowout/ */
+.hero > *,
+.dashboard-grid > *,
+.driver-layout > *,
+.driver-grid > *,
+.guide-grid > *,
+.calendar-list > *,
+.simulator-layout > *,
+.tires-layout > *,
+.tire-compound-grid > *,
+.tire-card > *,
+.tire-wet-grid > *,
+.tire-wet-card > *,
+.tire-tips-grid > *,
+.sectors-layout > *,
+.sector-color-grid > *,
+.sector-card > *,
+.penalties-layout > *,
+.penalty-grid > *,
+.penalty-card > *,
+.constructor-list > *,
+.position-grid > *,
+.ticket-grid > *,
+.race-meta > *,
+.stat-strip > *,
+.mini-stats > *,
+.tire-meta > *,
+.card-header > *,
+.sim-header > *,
+.tire-card-head > *,
+.sector-card-head > *,
+.penalty-card-head > *,
+.session-item > *,
+.driver-card-footer > * {
+  min-width: 0;
+}
+
+/* Rede de segurança extra: se mesmo assim uma palavra isolada for maior
+   que o espaço disponível (textos em português tendem a ter palavras
+   longas, tipo "Intermediário"), ela quebra dentro da própria caixa em
+   vez de vazar para fora e estourar a largura da página. Não afeta os
+   textos com white-space:nowrap (badges, tags), que continuam numa
+   linha só. */
+h1, h2, h3, h4, h5, h6, p, dt, dd, li {
+  overflow-wrap: break-word;
+}
+
+.hero-overlay {
+  position: absolute;
+  inset: 0;
+  background:
+    linear-gradient(90deg, rgba(8, 9, 11, 0.92) 0%, rgba(8, 9, 11, 0.76) 36%, rgba(8, 9, 11, 0.2) 100%),
+    linear-gradient(0deg, rgba(8, 9, 11, 0.96) 0%, rgba(8, 9, 11, 0.1) 42%, rgba(8, 9, 11, 0.7) 100%);
+}
+
+.hero-content,
+.race-ticket {
+  position: relative;
+  z-index: 1;
+}
+
+.eyebrow,
+.panel-kicker {
+  display: inline-flex;
+  align-items: center;
+  color: var(--red);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 0.94rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+}
+
+.hero h1,
+.section-heading h2,
+.feature-panel h3,
+.standings-card h3,
+.simulator-panel h3,
+.driver-spotlight h3 {
+  font-family: "Barlow Condensed", sans-serif;
+  letter-spacing: 0;
+  text-transform: uppercase;
+}
+
+.hero h1 {
+  max-width: 780px;
+  margin: 8px 0 12px;
+  font-size: clamp(3.5rem, 10vw, 8rem);
+  line-height: 0.83;
+}
+
+.hero p {
+  max-width: 680px;
+  margin: 0;
+  color: var(--soft);
+  font-size: clamp(1rem, 1.7vw, 1.22rem);
+  line-height: 1.65;
+}
+
+.hero-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-height: 46px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 18px;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  font-weight: 800;
+  cursor: pointer;
+}
+
+.button svg,
+.icon-button svg {
+  width: 18px;
+  height: 18px;
+}
+
+.button.primary {
+  border-color: var(--red);
+  background: var(--red);
+  box-shadow: 0 12px 36px rgba(245, 34, 45, 0.28);
+}
+
+.button.ghost:hover,
+.button.compact:hover,
+.icon-button:hover {
+  border-color: rgba(255, 255, 255, 0.34);
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.button.compact {
+  min-height: 38px;
+  padding: 0 12px;
+  font-size: 0.88rem;
+}
+
+.race-ticket {
+  align-self: end;
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-left: 5px solid var(--red);
+  border-radius: var(--radius);
+  padding: 22px;
+  background: rgba(8, 9, 11, 0.74);
+  box-shadow: var(--shadow);
+}
+
+.race-ticket span {
+  color: var(--muted);
+  font-size: 0.84rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.race-ticket strong {
+  display: block;
+  margin-top: 6px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(2rem, 4vw, 3.1rem);
+  line-height: 0.9;
+  text-transform: uppercase;
+}
+
+.ticket-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 22px;
+}
+
+.ticket-grid span {
+  min-height: 46px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  color: var(--text);
+}
+
+.section {
+  padding: clamp(58px, 8vw, 96px) clamp(16px, 4.2vw, 32px);
+}
+
+.section-heading {
+  max-width: 1120px;
+  margin: 0 auto 26px;
+}
+
+.section-heading h2 {
+  margin: 5px 0 0;
+  font-size: clamp(2.25rem, 5vw, 4.4rem);
+  line-height: 0.92;
+}
+
+.section-lead {
+  max-width: 680px;
+  margin: 14px 0 0;
+  color: var(--soft);
+  font-size: 1.05rem;
+  line-height: 1.65;
+}
+
+.dashboard-section,
+.calendar-section {
+  background:
+    linear-gradient(90deg, rgba(245, 34, 45, 0.1), transparent 28%),
+    #0c0e12;
+}
+
+.dashboard-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1.1fr 0.9fr;
+  gap: 16px;
+}
+
+.feature-panel,
+.standings-card,
+.simulator-panel,
+.guide-card,
+.driver-card,
+.driver-spotlight,
+.calendar-card,
+.race-ticket {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
+  box-shadow: 0 18px 50px rgba(0, 0, 0, 0.18);
+}
+
+.feature-panel,
+.standings-card,
+.simulator-panel {
+  padding: 22px;
+}
+
+.next-race-panel {
+  min-height: 330px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  background:
+    linear-gradient(135deg, rgba(245, 34, 45, 0.18), transparent 48%),
+    var(--surface);
+}
+
+.feature-panel h3,
+.standings-card h3,
+.simulator-panel h3,
+.driver-spotlight h3 {
+  margin: 6px 0 10px;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
+  line-height: 0.95;
+}
+
+.feature-panel p {
+  margin: 0;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.race-meta,
+.session-list {
+  display: grid;
+  gap: 10px;
+}
+
+.race-meta {
+  grid-template-columns: repeat(3, 1fr);
+  margin-top: 24px;
+}
+
+.race-meta div,
+.session-item {
+  border: 1px solid var(--line);
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.18);
+}
+
+.race-meta dt,
+.stat-strip dt,
+.mini-stats dt {
+  color: var(--muted);
+  font-size: 0.75rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.race-meta dd,
+.stat-strip dd,
+.mini-stats dd {
+  margin: 4px 0 0;
+  font-weight: 800;
+}
+
+.session-list {
+  margin-top: 14px;
+}
+
+.session-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  color: var(--soft);
+}
+
+.session-item strong {
+  color: var(--text);
+}
+
+.learn-panel {
+  position: relative;
+  min-height: 190px;
+  padding-right: 72px;
+}
+
+.icon-button {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  display: grid;
+  place-items: center;
+  color: var(--text);
+  background: rgba(255, 255, 255, 0.08);
+  cursor: pointer;
+}
+
+.circuit-panel {
+  min-height: 340px;
+}
+
+.track-map {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 260px;
+  margin: 16px 0;
+  padding: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  cursor: zoom-in;
+  font-family: inherit;
+  text-align: left;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 10px, transparent 10px 20px),
+    #0d1016;
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+.track-map:hover {
+  border-color: rgba(245, 34, 45, 0.45);
+}
+
+.track-map:active {
+  transform: scale(0.992);
+}
+
+.track-map:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+.track-map-zoom-hint {
+  position: absolute;
+  right: 10px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  background: rgba(8, 9, 11, 0.72);
+  border: 1px solid var(--line);
+  color: var(--soft);
+  font-size: 12px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.track-map-zoom-hint svg {
+  width: 13px;
+  height: 13px;
+}
+
+.track-map:hover .track-map-zoom-hint,
+.track-map:focus-visible .track-map-zoom-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.track-map img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 18px;
+  display: none;
+  /* a maioria dos mapas de circuito (ex: Wikimedia) vem com traçado escuro
+     pensado para fundo claro; este filtro inverte para ficar visível no
+     fundo escuro do card, mantendo o efeito neutro (sem tingir de cor) */
+  filter: invert(1) brightness(1.6);
+}
+
+.track-map img.is-loaded {
+  display: block;
+}
+
+.track-map-fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: radial-gradient(circle at 50% 50%, rgba(245, 34, 45, 0.16), transparent 65%);
+  color: var(--red);
+}
+
+.track-map-fallback.is-hidden {
+  display: none;
+}
+
+.track-map-fallback svg {
+  width: 46px;
+  height: 46px;
+}
+
+.stat-strip,
+.mini-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 0;
+}
+
+.stat-strip div,
+.mini-stats div {
+  border-top: 2px solid var(--red);
+  padding-top: 8px;
+}
+
+.standings-card {
+  grid-row: span 2;
+  background: var(--surface);
+}
+
+.constructors-card {
+  display: flex;
+  flex-direction: column;
+  align-self: start;
+  max-height: 420px;
+}
+
+.constructors-card .constructor-list {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  overflow-y: auto;
+  min-height: 0;
+}
+
+.card-header,
+.sim-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  margin-bottom: 14px;
+}
+
+.data-pill {
+  display: inline-flex;
+  align-items: center;
+  min-height: 28px;
+  border: 1px solid rgba(249, 200, 70, 0.4);
+  padding: 0 10px;
+  color: var(--yellow);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.table-wrap {
+  overflow-x: auto;
+}
+
+table {
+  width: 100%;
+  border-collapse: collapse;
+  min-width: 470px;
+}
+
+th,
+td {
+  padding: 13px 10px;
+  border-bottom: 1px solid var(--line);
+  text-align: left;
+}
+
+th {
+  color: var(--muted);
+  font-size: 0.78rem;
+  text-transform: uppercase;
+}
+
+td {
+  color: var(--soft);
+  font-weight: 700;
+}
+
+td:first-child,
+td:last-child {
+  color: var(--text);
+  font-weight: 900;
+}
+
+.team-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.team-chip::before {
+  content: "";
+  width: 10px;
+  height: 10px;
+  background: var(--team-color, var(--red));
+}
+
+.constructor-list {
+  display: grid;
+  gap: 12px;
+}
+
+.constructor-row {
+  display: grid;
+  grid-template-columns: 1fr auto;
+  gap: 16px;
+  align-items: center;
+}
+
+.constructor-row strong {
+  display: block;
+  margin-bottom: 7px;
+}
+
+.progress {
+  height: 8px;
+  background: rgba(255, 255, 255, 0.08);
+  overflow: hidden;
+}
+
+.progress span {
+  display: block;
+  width: var(--value);
+  height: 100%;
+  background: var(--team-color);
+}
+
+.learn-section,
+.playlist-section,
+.simulator-section {
+  background: var(--bg);
+}
+
+.guide-grid {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.guide-card,
+.driver-card,
+.calendar-card {
+  padding: 20px 20px 44px;
+}
+
+.guide-card {
+  min-height: 210px;
+}
+
+.guide-icon {
+  width: 44px;
+  height: 44px;
+  display: grid;
+  place-items: center;
+  border: 1px solid var(--line);
+  margin-bottom: 18px;
+  color: var(--accent);
+  background: rgba(255, 255, 255, 0.06);
+}
+
+.guide-icon svg {
+  width: 22px;
+  height: 22px;
+}
+
+.guide-card h3,
+.driver-card h3,
+.calendar-card h3 {
+  margin: 0 0 10px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.guide-card p,
+.calendar-card p,
+.driver-card p {
+  margin: 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.guide-card-link {
+  display: inline-flex;
+  margin-top: 16px;
+  color: var(--red);
+  font-size: 0.88rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.guide-card-link:hover {
+  color: var(--text);
+}
+
+.tires-section {
+  background:
+    linear-gradient(180deg, #0c0e12 0%, #08090b 100%),
+    radial-gradient(circle at 18% 12%, rgba(245, 34, 45, 0.12), transparent 42%);
+}
+
+.embedded-tires {
+  margin-top: 28px;
+  padding-top: 28px;
+  border-top: 1px solid var(--line);
+}
+
+.tires-layout {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tires-intro {
+  grid-column: span 3;
+}
+
+.tires-intro h3,
+.tires-wet h3 {
+  margin: 0 0 12px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.9rem;
+  text-transform: uppercase;
+}
+
+.tires-intro p,
+.tires-wet p {
+  margin: 0;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.tires-facts {
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+  display: grid;
+  gap: 10px;
+}
+
+.tires-facts li {
+  position: relative;
+  padding-left: 18px;
+  color: var(--muted);
+  line-height: 1.55;
+}
+
+.tires-facts li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.55em;
+  width: 8px;
+  height: 8px;
+  background: var(--red);
+}
+
+.tire-compound-grid {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.tire-card {
+  display: grid;
+  grid-template-columns: 92px 1fr;
+  gap: 18px;
+  align-items: center;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.tire-card-body p:last-child {
+  margin: 12px 0 0;
+  color: var(--muted);
+  font-size: 0.94rem;
+  line-height: 1.6;
+}
+
+.tire-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tire-card-head h3,
+.tire-wet-card h4 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.7rem;
+  line-height: 1;
+  text-transform: uppercase;
+}
+
+.tire-tag {
+  display: inline-flex;
+  align-items: center;
+  min-height: 26px;
+  padding: 0 10px;
+  border: 1px solid color-mix(in srgb, var(--tire-color) 55%, transparent);
+  border-radius: 999px;
+  color: var(--tire-color);
+  background: color-mix(in srgb, var(--tire-color) 12%, transparent);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.tire-name-en {
+  margin: 4px 0 0;
+  color: var(--muted);
+  font-size: 0.82rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.tire-meta {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  margin: 14px 0 0;
+}
+
+.tire-meta dt {
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.tire-meta dd {
+  margin: 4px 0 0;
+  color: var(--text);
+  font-weight: 800;
+}
+
+.tire-visual {
+  position: relative;
+  width: 72px;
+  height: 72px;
+  display: grid;
+  place-items: center;
+}
+
+.tire-sidewall {
+  position: absolute;
+  inset: 8px;
+  border: 7px solid var(--tire-color);
+  border-radius: 50%;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.08),
+    0 0 18px color-mix(in srgb, var(--tire-color) 35%, transparent);
+}
+
+.tire-tread {
+  position: absolute;
+  inset: 18px;
+  border-radius: 50%;
+  background:
+    radial-gradient(circle at center, #050607 0 34%, transparent 35%),
+    repeating-conic-gradient(from 0deg, #111318 0 8deg, #08090b 8deg 16deg);
+}
+
+.tire-brand {
+  position: relative;
+  z-index: 1;
+  color: var(--tire-color);
+  font-size: 0.58rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
+.tires-wet {
+  grid-column: span 3;
+}
+
+.tire-wet-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+  margin-top: 18px;
+}
+
+.tire-wet-card {
+  display: grid;
+  grid-template-columns: 72px 1fr;
+  gap: 16px;
+  align-items: center;
+  padding: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.03);
+}
+
+.tire-wet-card p:last-child {
+  margin: 10px 0 0;
+  color: var(--muted);
+  line-height: 1.6;
+}
+
+.tire-tips-grid {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.tire-tip-card {
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface-2);
+}
+
+.tire-tip-icon {
+  width: 40px;
+  height: 40px;
+  display: grid;
+  place-items: center;
+  margin-bottom: 14px;
+  border: 1px solid var(--line);
+  color: var(--red);
+  background: rgba(245, 34, 45, 0.08);
+}
+
+.tire-tip-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.tire-tip-card h4 {
+  margin: 0 0 8px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.tire-tip-card p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ===== Cores de setor ===== */
+
+.sectors-layout {
+  max-width: 1120px;
+  margin: 32px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sectors-intro {
+  grid-column: span 3;
+}
+
+.sectors-intro h3 {
+  margin: 0 0 12px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.9rem;
+  text-transform: uppercase;
+}
+
+.sectors-intro p {
+  margin: 0;
+  max-width: 720px;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+/* Mockup ilustrativo das três caixinhas de setor, como na transmissão. */
+.sector-timing-demo {
+  display: flex;
+  gap: 8px;
+  margin-top: 20px;
+}
+
+.sector-box {
+  display: grid;
+  place-items: center;
+  width: 64px;
+  height: 40px;
+  border-radius: 4px;
+  background: var(--sector-color, var(--muted));
+  color: #08090b;
+  font-family: "Barlow Condensed", sans-serif;
+  font-weight: 800;
+  font-size: 0.95rem;
+  letter-spacing: 0.02em;
+}
+
+.sector-color-grid {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.sector-card {
+  display: grid;
+  grid-template-columns: 14px 1fr;
+  gap: 16px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.sector-swatch {
+  width: 14px;
+  border-radius: 999px;
+  background: var(--sector-color, var(--muted));
+}
+
+.sector-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.sector-card-head h4 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.35rem;
+  text-transform: uppercase;
+}
+
+.sector-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--sector-color, var(--line));
+  color: var(--sector-color, var(--soft));
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.sector-card-body p {
+  margin: 10px 0 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* ===== Penalidades ===== */
+
+.penalties-layout {
+  max-width: 1120px;
+  margin: 32px auto 0;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.penalties-intro {
+  grid-column: span 3;
+}
+
+.penalties-intro h3 {
+  margin: 0 0 12px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.9rem;
+  text-transform: uppercase;
+}
+
+.penalties-intro p {
+  margin: 0;
+  max-width: 720px;
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.penalty-grid {
+  grid-column: span 3;
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 16px;
+}
+
+.penalty-card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  padding: 20px;
+  border: 1px solid var(--line);
+  border-top: 3px solid var(--penalty-color, var(--line));
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.penalty-card-icon {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  background: color-mix(in srgb, var(--penalty-color, var(--muted)) 16%, transparent);
+  color: var(--penalty-color, var(--soft));
+}
+
+.penalty-card-icon svg {
+  width: 20px;
+  height: 20px;
+}
+
+.penalty-card-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.penalty-card-head h4 {
+  margin: 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.3rem;
+  text-transform: uppercase;
+}
+
+.penalty-tag {
+  padding: 3px 9px;
+  border-radius: 999px;
+  border: 1px solid var(--penalty-color, var(--line));
+  color: var(--penalty-color, var(--soft));
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+  white-space: nowrap;
+}
+
+.penalty-card-body p {
+  margin: 0;
+  color: var(--muted);
+  font-size: 0.92rem;
+  line-height: 1.6;
+}
+
+/* Termômetro de gravidade: 4 barrinhas, preenchidas conforme o nível
+   da penalidade (quanto mais preenchido, mais grave). */
+.penalty-meter {
+  display: flex;
+  gap: 4px;
+  margin-top: 4px;
+}
+
+.penalty-meter span {
+  flex: 1;
+  height: 5px;
+  border-radius: 999px;
+  background: var(--line);
+}
+
+.penalty-meter span.is-filled {
+  background: var(--penalty-color, var(--muted));
+}
+
+.split-section {
+  background:
+    linear-gradient(180deg, #0c0e12, #08090b);
+}
+
+.driver-layout {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: minmax(320px, 0.95fr) 1.05fr;
+  gap: 16px;
+}
+
+.driver-spotlight {
+  overflow: hidden;
+}
+
+.driver-spotlight img {
+  width: 100%;
+  aspect-ratio: 16 / 10;
+  object-fit: cover;
+}
+
+.spotlight-content {
+  padding: 22px;
+}
+
+.spotlight-content p {
+  color: var(--soft);
+  line-height: 1.65;
+}
+
+.driver-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 16px;
+}
+
+.driver-card {
+  position: relative;
+  overflow: hidden;
+  min-height: 180px;
+}
+
+.driver-card::before {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 5px;
+  background: var(--team-color);
+}
+
+.driver-number {
+  color: rgba(255, 255, 255, 0.14);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 4.5rem;
+  font-weight: 800;
+  line-height: 0.8;
+}
+
+.driver-card-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 18px;
+  color: var(--soft);
+  font-weight: 800;
+}
+
+.calendar-list {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 16px;
+}
+
+.calendar-card {
+  position: relative;
+  min-height: 200px;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  cursor: pointer;
+  background:
+    linear-gradient(180deg, rgba(255, 255, 255, 0.06), rgba(255, 255, 255, 0.02)),
+    var(--surface);
+  transition: border-color 0.2s ease, transform 0.15s ease;
+}
+
+.calendar-card:hover {
+  border-color: rgba(245, 34, 45, 0.45);
+}
+
+.calendar-card:active {
+  transform: scale(0.99);
+}
+
+.calendar-card:focus-visible {
+  outline: 2px solid var(--red);
+  outline-offset: 2px;
+}
+
+.calendar-card-zoom-hint {
+  position: absolute;
+  right: 14px;
+  bottom: 14px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 5px 9px;
+  border-radius: 999px;
+  background: rgba(8, 9, 11, 0.72);
+  border: 1px solid var(--line);
+  color: var(--soft);
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.02em;
+  opacity: 0;
+  transform: translateY(6px);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+
+.calendar-card-zoom-hint svg {
+  width: 12px;
+  height: 12px;
+}
+
+.calendar-card:hover .calendar-card-zoom-hint,
+.calendar-card:focus-visible .calendar-card-zoom-hint {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.round-badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  border: 1px solid var(--line);
+  color: var(--red);
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 1.45rem;
+  font-weight: 800;
+}
+
+.calendar-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin-top: 18px;
+}
+
+.calendar-meta span {
+  border: 1px solid var(--line);
+  padding: 7px 9px;
+  color: var(--soft);
+  font-size: 0.82rem;
+  font-weight: 800;
+}
+
+.simulator-layout {
+  max-width: 1120px;
+  margin: 0 auto;
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16px;
+}
+
+.position-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 12px;
+}
+
+.position-control {
+  display: grid;
+  gap: 7px;
+}
+
+.position-control label {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.position-control select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  color: var(--text);
+  background: #0e1117;
+  padding: 0 38px 0 11px;
+  outline: none;
+  cursor: pointer;
+  transition: border-color 0.15s ease, background-color 0.15s ease;
+
+  /* remove a seta nativa do navegador/SO (a parte mais "feia" do print) */
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+
+  /* seta customizada própria, na mesma linha visual do resto do site */
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23a9b0bd' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 12px center;
+  background-size: 15px;
+
+  /* tenta escurecer o popup de opções nativo (suportado em Chromium/Firefox
+     recentes; em navegadores sem suporte, cai de volta no padrão do SO) */
+  color-scheme: dark;
+}
+
+.position-control select:hover {
+  border-color: rgba(255, 255, 255, 0.28);
+}
+
+.position-control select:focus {
+  border-color: var(--red);
+  box-shadow: 0 0 0 3px rgba(245, 34, 45, 0.18);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='16' height='16' viewBox='0 0 24 24' fill='none' stroke='%23f5222d' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+.position-control select option {
+  background: #0e1117;
+  color: var(--text);
+}
+
+.change-positive {
+  color: var(--green);
+}
+
+.change-negative {
+  color: var(--red);
+}
+
+.change-neutral {
+  color: var(--muted);
+}
+
+.site-footer {
+  display: flex;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 26px clamp(18px, 5vw, 72px);
+  border-top: 1px solid var(--line);
+  color: var(--muted);
+  background: #050607;
+  font-size: 0.9rem;
+}
+
+@media (max-width: 980px) {
+  .site-header {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .main-nav {
+    width: 100%;
+    overflow-x: auto;
+    padding-bottom: 4px;
+    flex-wrap: nowrap;
+    scrollbar-width: none;
+  }
+
+  .hero,
+  .dashboard-grid,
+  .driver-layout,
+  .simulator-layout,
+  .tires-layout,
+  .sectors-layout,
+  .penalties-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .hero {
+    padding-top: clamp(88px, 12vh, 120px);
+  }
+
+  .standings-card {
+    grid-row: auto;
+  }
+
+  .guide-grid,
+  .calendar-list,
+  .driver-grid,
+  .tire-compound-grid,
+  .tire-tips-grid,
+  .sector-color-grid,
+  .penalty-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .tires-intro,
+  .tires-wet,
+  .tire-compound-grid,
+  .tire-tips-grid,
+  .sectors-intro,
+  .sector-color-grid,
+  .penalties-intro,
+  .penalty-grid {
+    grid-column: span 1;
+  }
+
+  .race-ticket {
+    max-width: 420px;
+  }
+}
+
+@media (max-width: 640px) {
+  .hero {
+    min-height: auto;
+    padding: 92px 18px 32px;
+  }
+
+  .hero h1 {
+    font-size: clamp(3.1rem, 18vw, 4.7rem);
+  }
+
+  .hero-content,
+  .race-ticket {
+    max-width: none;
+  }
+
+  .hero-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .button {
+    width: 100%;
+    max-width: none;
+  }
+
+  .race-meta,
+  .stat-strip,
+  .mini-stats,
+  .guide-grid,
+  .driver-grid,
+  .calendar-list,
+  .position-grid,
+  .ticket-grid,
+  .tire-compound-grid,
+  .tire-wet-grid,
+  .tire-tips-grid,
+  .tires-layout,
+  .sector-color-grid,
+  .sectors-layout,
+  .penalty-grid,
+  .penalties-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .tire-card,
+  .sector-card {
+    grid-template-columns: 1fr;
+    justify-items: start;
+  }
+
+  .sector-swatch {
+    width: 100%;
+    height: 6px;
+  }
+
+  .card-header,
+  .sim-header,
+  .site-footer {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .feature-panel,
+  .standings-card,
+  .simulator-panel,
+  .guide-card,
+  .driver-card,
+  .calendar-card,
+  .spotlight-content {
+    padding: 18px;
+  }
+
+  .track-map {
+    height: 220px;
+  }
+
+  table {
+    min-width: 420px;
+  }
+}
+
+/* ===== Modal: mapa do circuito ampliado ===== */
+
+.track-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 80;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  background: rgba(5, 6, 8, 0.7);
+  backdrop-filter: blur(6px);
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+
+.track-modal-overlay[hidden] {
+  display: none;
+}
+
+.track-modal-overlay.is-visible {
+  opacity: 1;
+}
+
+.track-modal {
+  position: relative;
+  width: min(720px, 100%);
+  max-height: min(640px, 90vh);
+  overflow-y: auto;
+  padding: 28px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+  box-shadow: var(--shadow);
+  transform: scale(0.94) translateY(10px);
+  opacity: 0;
+  transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), opacity 0.25s ease;
+}
+
+.track-modal-overlay.is-visible .track-modal {
+  transform: scale(1) translateY(0);
+  opacity: 1;
+}
+
+.track-modal-close {
+  position: absolute;
+  top: 18px;
+  right: 18px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 999px;
+  border: 1px solid var(--line);
+  background: var(--surface-2);
+  color: var(--text);
+  cursor: pointer;
+  transition: background 0.15s ease, transform 0.15s ease, border-color 0.15s ease;
+}
+
+.track-modal-close:hover {
+  background: var(--red);
+  border-color: var(--red);
+  transform: rotate(90deg);
+}
+
+.track-modal-close svg {
+  width: 17px;
+  height: 17px;
+}
+
+.track-modal-kicker {
+  color: var(--red);
+  font-size: 12px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.track-modal h3 {
+  margin: 4px 0 18px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 28px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.01em;
+  padding-right: 36px;
+}
+
+.track-modal-map {
+  position: relative;
+  height: 360px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background:
+    repeating-linear-gradient(45deg, rgba(255, 255, 255, 0.06) 0 10px, transparent 10px 20px),
+    #0d1016;
+}
+
+.track-modal-map img {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  padding: 28px;
+  filter: invert(1) brightness(1.6);
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+
+.track-modal-map img.is-loaded {
+  opacity: 1;
+}
+
+.track-modal-stats {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin: 18px 0 0;
+}
+
+.track-modal-stats div {
+  border-top: 2px solid var(--red);
+  padding-top: 8px;
+}
+
+.track-modal-stats dt {
+  color: var(--muted);
+  font-size: 12px;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.track-modal-stats dd {
+  margin: 4px 0 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: 18px;
+  font-weight: 700;
+}
+
+@media (max-width: 560px) {
+  .track-modal {
+    padding: 20px;
+  }
+
+  .track-modal-map {
+    height: 240px;
+  }
+
+  .track-modal-stats {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* ===== Seção: Playlist da F1 ===== */
+
+.playlist-panel {
+  max-width: 880px;
+  margin: 0 auto;
+}
+
+.playlist-video {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  overflow: hidden;
+  background: #0d1016;
+}
+
+.playlist-video iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+
+.playlist-caption {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 16px 0 0;
+  color: var(--muted);
+  font-size: 0.9rem;
+}
+
+.playlist-caption svg {
+  flex-shrink: 0;
+  width: 16px;
+  height: 16px;
+  color: var(--red);
+}
