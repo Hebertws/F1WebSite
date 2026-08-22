@@ -1,22 +1,3 @@
-// ============================================================================
-// DADOS DA TEMPORADA
-// ============================================================================
-// O QUE VOCÊ AINDA EDITA MANUALMENTE:
-// 1. Pontuação dos pilotos -> array "drivers" abaixo, campo "points"
-//    (também dá pra atualizar "wins" e "podiums" se quiser manter certo)
-//
-// O QUE JÁ É AUTOMÁTICO (calculado a partir da data de hoje):
-// - Qual etapa está "Concluído" / "Atual" / "Próximo" -> array "calendar"
-// - Qual é a "próxima corrida" em destaque no dashboard (nome do GP, data,
-//   voltas, extensão, descrição, sessões) -> objeto "nextRace"
-// - Qual mapa de circuito aparece -> dicionário "circuitMaps"
-// - Pontos dos construtores e classificação -> calculados a partir de "drivers"
-//
-// Se uma data de GP for remarcada oficialmente, atualize o campo "raceDate"
-// daquela etapa em "calendar" (formato "AAAA-MM-DD", é a data do domingo de
-// corrida) — tudo o resto se ajusta sozinho.
-// ============================================================================
-
 const teamColors = {
   McLaren: "#ff8a00",
   Ferrari: "#f5222d",
@@ -32,6 +13,9 @@ const teamColors = {
 };
 
 const DRIVER_STANDINGS_API = "https://api.jolpi.ca/ergast/f1/current/driverstandings.json";
+// Filtra resultados de posição 1 (vencedores) de todas as corridas da
+// temporada atual — usado para preencher o "focus" do calendário sozinho.
+const RACE_WINNERS_API = "https://api.jolpi.ca/ergast/f1/current/results/1.json";
 
 // Pontuação de cada piloto local. Ela funciona como fallback se a API falhar
 // e também guarda textos editoriais que a API não fornece, como "style".
@@ -44,7 +28,7 @@ let drivers = [
     points: 179,
     wins: 5,
     podiums: 7,
-    style: "Amplia a liderança do campeonato após o Sprint da Grã-Bretanha, com 43 pontos de vantagem sobre Russell, e cravou a pole em Silverstone.",
+    style: "Amplia a liderança do campeonato após o Sprint da Hungria, com 50 pontos de vantagem sobre Hamilton, e cravou a pole em Silverstone.",
   },
   {
     name: "Lewis Hamilton",
@@ -368,6 +352,49 @@ async function fetchDriverStandings() {
       detail: `Não foi possível carregar a API. Fallback ativo: ${error.message}`,
     };
     console.warn("F1 Start: usando dados locais de pilotos.", error);
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+// Busca o vencedor de cada corrida já disputada na temporada atual e
+// substitui o "focus" da etapa correspondente no array "calendar" (ex.:
+// "Antonelli venceu"). Etapas que a API ainda não tem resultado (corridas
+// futuras) simplesmente não são tocadas e mantêm o texto local original.
+// Se a API falhar, o calendário inteiro segue com os textos manuais atuais.
+async function fetchRaceWinners() {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const response = await fetch(RACE_WINNERS_API, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API respondeu com status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const races = data?.MRData?.RaceTable?.Races;
+
+    if (!Array.isArray(races)) {
+      throw new Error("API não retornou resultados de corrida.");
+    }
+
+    races.forEach((race) => {
+      const round = Number(race.round);
+      const winnerDriver = race.Results?.[0]?.Driver;
+      const calendarItem = calendar.find((item) => item.round === round);
+      if (!winnerDriver || !calendarItem) return;
+
+      const localProfile = findLocalDriverProfile(winnerDriver);
+      const displayName = localProfile?.name.split(" ").pop() || winnerDriver.familyName;
+      calendarItem.focus = `${displayName} venceu`;
+    });
+  } catch (error) {
+    console.warn("F1 Start: não foi possível atualizar vencedores do calendário automaticamente.", error);
   } finally {
     window.clearTimeout(timeout);
   }
@@ -702,8 +729,8 @@ const calendar = [
   { round: 7, race: "Espanha", track: "Barcelona-Catalunya", raceDate: "2026-06-14", focus: "Hamilton venceu", laps: 66, length: "4,675 km", description: "Última edição em Barcelona antes da mudança para Madrid, com uma mistura clássica de curvas técnicas e rápidas." },
   { round: 8, race: "Áustria", track: "Red Bull Ring", raceDate: "2026-06-28", focus: "Russell venceu", laps: 71, length: "4,318 km", description: "A pista é curta, tem subidas fortes, freadas importantes e uma sequência final rápida que costuma punir qualquer erro de trajetória." },
   { round: 9, race: "Grã-Bretanha", track: "Silverstone", raceDate: "2026-07-05", focus: "Antonelli na pole", sprint: true, laps: 52, length: "5,891 km", description: "Lar histórico da F1, com a sequência rápida de Maggots-Becketts-Chapel entre as mais desafiadoras do calendário.", sessionTimes: { sprint: "08:00", qualifying: "12:00", race: "11:00" } },
-  { round: 10, race: "Bélgica", track: "Spa-Francorchamps", raceDate: "2026-07-19", focus: "alta velocidade", laps: 44, length: "7,004 km", description: "A pista mais longa do calendário, com a icônica subida de Eau Rouge/Raidillon tomada em velocidade máxima.", sessionTimes: { practice1: "08:00 (estimado)", qualifying: "08:00 (estimado)", race: "10:00" } },
-  { round: 11, race: "Hungria", track: "Budapeste", raceDate: "2026-07-26", focus: "tração", laps: 70, length: "4,381 km", description: "Traçado apertado e sinuoso, às vezes comparado a um 'Mônaco sem o glamour', onde a estratégia pesa mais que a ultrapassagem." },
+  { round: 10, race: "Bélgica", track: "Spa-Francorchamps", raceDate: "2026-07-19", focus: "Antonelli venceu", laps: 44, length: "7,004 km", description: "A pista mais longa do calendário, com a icônica subida de Eau Rouge/Raidillon tomada em velocidade máxima.", sessionTimes: { practice1: "08:00 (estimado)", qualifying: "08:00 (estimado)", race: "10:00" } },
+  { round: 11, race: "Hungria", track: "Budapeste", raceDate: "2026-07-26", focus: "Norris venceu", laps: 70, length: "4,381 km", description: "Traçado apertado e sinuoso, às vezes comparado a um 'Mônaco sem o glamour', onde a estratégia pesa mais que a ultrapassagem." },
   { round: 12, race: "Países Baixos", track: "Zandvoort", raceDate: "2026-08-23", focus: "inclinação", sprint: true, laps: 72, length: "4,259 km", description: "Circuito litorâneo entre dunas, com a curva final em banking de 18° e a torcida laranja de Verstappen lotando as arquibancadas." },
   { round: 13, race: "Itália", track: "Monza", raceDate: "2026-09-06", focus: "velocidade máxima", laps: 53, length: "5,793 km", description: "O 'Templo da Velocidade': cerca de 75% da volta é feita em aceleração máxima, com pouquíssimo downforce no carro." },
   { round: 14, race: "Espanha", track: "Madrid", raceDate: "2026-09-13", focus: "novo circuito", debut: true, laps: 57, length: "5,416 km", description: "Estreia do Madring no calendário, com a curva banked 'La Monumental' de 24° de inclinação como ponto alto do traçado." },
@@ -796,8 +823,13 @@ const gpDisplayName = {
   "Abu Dhabi": "GP de Abu Dhabi",
 };
 
-const { withStatus: calendarWithStatus, currentIndex: currentRaceIndex } = computeCalendarStatus();
-const currentCalendarEntry = calendarWithStatus[currentRaceIndex];
+// Esses três ficam vazios até "refreshCalendarDerivedData()" ser chamada
+// (dentro de boot(), depois que fetchRaceWinners() já rodou) — assim o
+// status de cada etapa e o "focus" exibido já nascem com o vencedor real
+// vindo da API, em vez do texto local desatualizado.
+let calendarWithStatus = [];
+let currentRaceIndex = -1;
+let currentCalendarEntry = {};
 
 // Formata "2026-06-28" como "26-28 jun" (sexta a domingo do fim de semana).
 const monthNamesPt = ["jan", "fev", "mar", "abr", "mai", "jun", "jul", "ago", "set", "out", "nov", "dez"];
@@ -833,19 +865,28 @@ function buildSessions(item) {
   ];
 }
 
-// Monta o objeto nextRace inteiro a partir da etapa atual calculada — nome,
-// data, país, voltas, extensão, descrição e sessões, tudo automático.
-nextRace = {
-  name: gpDisplayName[currentCalendarEntry.race] || `GP ${currentCalendarEntry.race}`,
-  date: formatWeekendRange(currentCalendarEntry),
-  track: currentCalendarEntry.track,
-  country: currentCalendarEntry.race,
-  laps: currentCalendarEntry.laps,
-  length: currentCalendarEntry.length,
-  description: currentCalendarEntry.description,
-  highlight: currentCalendarEntry.focus,
-  sessions: buildSessions(currentCalendarEntry),
-};
+// Recalcula status de cada etapa (Concluído/Atual/Próximo) e remonta o
+// objeto nextRace (nome, data, país, voltas, extensão, descrição, sessões).
+// Chamada em boot() depois de fetchRaceWinners(), para já usar o "focus"
+// atualizado com o vencedor real de cada corrida.
+function refreshCalendarDerivedData() {
+  const result = computeCalendarStatus();
+  calendarWithStatus = result.withStatus;
+  currentRaceIndex = result.currentIndex;
+  currentCalendarEntry = calendarWithStatus[currentRaceIndex];
+
+  nextRace = {
+    name: gpDisplayName[currentCalendarEntry.race] || `GP ${currentCalendarEntry.race}`,
+    date: formatWeekendRange(currentCalendarEntry),
+    track: currentCalendarEntry.track,
+    country: currentCalendarEntry.race,
+    laps: currentCalendarEntry.laps,
+    length: currentCalendarEntry.length,
+    description: currentCalendarEntry.description,
+    highlight: currentCalendarEntry.focus,
+    sessions: buildSessions(currentCalendarEntry),
+  };
+}
 
 let activeTermIndex = 0;
 
@@ -1537,7 +1578,8 @@ function wireEvents() {
 
 
 async function boot() {
-  await fetchDriverStandings();
+  await Promise.all([fetchDriverStandings(), fetchRaceWinners()]);
+  refreshCalendarDerivedData();
 
   renderHeroRace();
   renderDashboardRace();

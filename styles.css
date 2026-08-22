@@ -68,7 +68,10 @@ img {
   align-items: center;
   justify-content: space-between;
   gap: 24px;
-  padding: 14px clamp(18px, 4vw, 54px);
+  /* altura travada: a barra não cresce mais junto com a logo — o
+     tamanho da logo agora é livre e sai da barra sem esticá-la */
+  height: 76px;
+  padding: 0 clamp(18px, 4vw, 54px);
   background: rgba(8, 9, 11, 0.84);
   border-bottom: 1px solid var(--line);
   backdrop-filter: blur(18px);
@@ -83,12 +86,21 @@ img {
   font-weight: 800;
   letter-spacing: 0;
   text-transform: uppercase;
+  /* âncora de posicionamento pra logo poder "vazar" pra fora da barra */
+  position: relative;
+  width: 200px;
+  height: 100%;
 }
 
 .brand-mark {
-  width: 48px;
-  height: 28px;
-  flex-shrink: 0;
+  /* tirada do fluxo do flex: o tamanho dela não afeta mais a altura
+     da .site-header, só o próprio card da logo cresce/vaza */
+  position: absolute;
+  left: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  width: 200px;
+  height: 180px;
 }
 
 .main-nav {
@@ -592,10 +604,8 @@ h1, h2, h3, h4, h5, h6, p, dt, dd, li {
   object-fit: contain;
   padding: 18px;
   display: none;
-  /* a maioria dos mapas de circuito (ex: Wikimedia) vem com traçado escuro
-     pensado para fundo claro; este filtro inverte para ficar visível no
-     fundo escuro do card, mantendo o efeito neutro (sem tingir de cor) */
-  filter: invert(1) brightness(1.6);
+  /* mapas vetorizados manualmente, já no estilo escuro do site —
+     sem necessidade de inversão de cor */
 }
 
 .track-map img.is-loaded {
@@ -1561,6 +1571,17 @@ td:last-child {
   .site-header {
     align-items: flex-start;
     flex-direction: column;
+    height: auto;
+    padding: 14px clamp(18px, 4vw, 54px);
+  }
+
+  .brand {
+    height: auto;
+  }
+
+  .brand-mark {
+    position: static;
+    transform: none;
   }
 
   .main-nav {
@@ -1805,7 +1826,6 @@ td:last-child {
   height: 100%;
   object-fit: contain;
   padding: 28px;
-  filter: invert(1) brightness(1.6);
   opacity: 0;
   transition: opacity 0.3s ease;
 }
