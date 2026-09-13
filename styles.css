@@ -766,7 +766,6 @@ td:last-child {
 }
 
 .learn-section,
-.playlist-section,
 .simulator-section {
   background: var(--bg);
 }
@@ -1866,45 +1865,4 @@ td:last-child {
   .track-modal-stats {
     grid-template-columns: 1fr;
   }
-}
-
-/* ===== Seção: Playlist da F1 ===== */
-
-.playlist-panel {
-  max-width: 880px;
-  margin: 0 auto;
-}
-
-.playlist-video {
-  position: relative;
-  width: 100%;
-  aspect-ratio: 16 / 9;
-  border: 1px solid var(--line);
-  border-radius: var(--radius);
-  overflow: hidden;
-  background: #0d1016;
-}
-
-.playlist-video iframe {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-  border: 0;
-}
-
-.playlist-caption {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin: 16px 0 0;
-  color: var(--muted);
-  font-size: 0.9rem;
-}
-
-.playlist-caption svg {
-  flex-shrink: 0;
-  width: 16px;
-  height: 16px;
-  color: var(--red);
 }
