@@ -836,12 +836,6 @@ td:last-child {
   color: var(--text);
 }
 
-.tires-section {
-  background:
-    linear-gradient(180deg, #0c0e12 0%, #08090b 100%),
-    radial-gradient(circle at 18% 12%, rgba(245, 34, 45, 0.12), transparent 42%);
-}
-
 .embedded-tires {
   margin-top: 28px;
   padding-top: 28px;

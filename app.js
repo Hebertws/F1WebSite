@@ -25,17 +25,17 @@ let drivers = [
     number: 12,
     team: "Mercedes",
     country: "Itália",
-    points: 179,
+    points: 242,
     wins: 5,
     podiums: 7,
-    style: "Amplia a liderança do campeonato após o Sprint da Hungria, com 50 pontos de vantagem sobre Hamilton, e cravou a pole em Silverstone.",
+    style: "Amplia a liderança do campeonato após o Sprint da Hungria, com {gap:George Russell} pontos de vantagem sobre Russell, e cravou a pole em Silverstone.",
   },
   {
     name: "Lewis Hamilton",
     number: 44,
     team: "Ferrari",
     country: "Reino Unido",
-    points: 132,
+    points: 183,
     wins: 1,
     podiums: 4,
     style: "Experiência absurda em leitura de corrida, pneus e momentos de mudança de condição da pista.",
@@ -45,7 +45,7 @@ let drivers = [
     number: 63,
     team: "Mercedes",
     country: "Reino Unido",
-    points: 136,
+    points: 183,
     wins: 2,
     podiums: 4,
     style: "Venceu na Áustria após pole polêmica sob bandeira amarela — sua segunda vitória na temporada e sétima da carreira.",
@@ -246,6 +246,7 @@ const fallbackDrivers = drivers.map((driver) => ({ ...driver }));
 let driverDataStatus = {
   label: "Dados locais",
   detail: "Usando dados salvos no projeto.",
+  season: "2026",
 };
 
 const nationalityNamesPt = {
@@ -318,6 +319,20 @@ function mapApiStandingToDriver(standing) {
   };
 }
 
+// Resolve tokens "{gap:Nome do Rival}" dentro de um texto "style", trocando
+// pelo número de pontos de diferença ATUAL entre o piloto e o rival citado.
+// Assim o texto editorial (ex.: "com {gap:Lewis Hamilton} pontos de
+// vantagem sobre Hamilton") nunca fica desatualizado, mesmo quando a API
+// muda a pontuação de ambos — sem precisar editar o número na mão.
+function resolveStyleText(driver, allDrivers) {
+  if (!driver.style) return "";
+
+  return driver.style.replace(/\{gap:([^}]+)\}/g, (match, rivalName) => {
+    const rival = allDrivers.find((d) => d.name === rivalName.trim());
+    return rival ? Math.abs(driver.points - rival.points) : match;
+  });
+}
+
 async function fetchDriverStandings() {
   const controller = new AbortController();
   const timeout = window.setTimeout(() => controller.abort(), 8000);
@@ -341,15 +356,18 @@ async function fetchDriverStandings() {
     }
 
     drivers = apiStandings.map(mapApiStandingToDriver);
+    const season = standingsList.season || data?.MRData?.StandingsTable?.season || "";
     driverDataStatus = {
-      label: `Ao vivo ${standingsList.season || data?.MRData?.StandingsTable?.season || ""}`.trim(),
+      label: `Ao vivo ${season}`.trim(),
       detail: `Classificação carregada da Jolpica F1 em ${new Date().toLocaleString("pt-BR")}.`,
+      season,
     };
   } catch (error) {
     drivers = fallbackDrivers.map((driver) => ({ ...driver }));
     driverDataStatus = {
       label: "Dados locais",
       detail: `Não foi possível carregar a API. Fallback ativo: ${error.message}`,
+      season: calendar[0]?.raceDate?.slice(0, 4) || "—",
     };
     console.warn("F1 Start: usando dados locais de pilotos.", error);
   } finally {
@@ -828,7 +846,6 @@ const gpDisplayName = {
 // status de cada etapa e o "focus" exibido já nascem com o vencedor real
 // vindo da API, em vez do texto local desatualizado.
 let calendarWithStatus = [];
-let currentRaceIndex = -1;
 let currentCalendarEntry = {};
 
 // Formata "2026-06-28" como "26-28 jun" (sexta a domingo do fim de semana).
@@ -872,8 +889,7 @@ function buildSessions(item) {
 function refreshCalendarDerivedData() {
   const result = computeCalendarStatus();
   calendarWithStatus = result.withStatus;
-  currentRaceIndex = result.currentIndex;
-  currentCalendarEntry = calendarWithStatus[currentRaceIndex];
+  currentCalendarEntry = calendarWithStatus[result.currentIndex];
 
   nextRace = {
     name: gpDisplayName[currentCalendarEntry.race] || `GP ${currentCalendarEntry.race}`,
@@ -964,12 +980,16 @@ function sortedDrivers() {
 
 function renderDriverDataStatus() {
   const status = byId("driver-data-status");
+  const constructorStatus = byId("constructor-data-status");
   if (!status) {
     return;
   }
 
   status.textContent = driverDataStatus.label;
   status.title = driverDataStatus.detail;
+  if (constructorStatus) {
+    constructorStatus.textContent = driverDataStatus.season;
+  }
 }
 
 function renderStandings() {
@@ -1054,7 +1074,7 @@ function wireTireSounds() {
 
 function tireVisual(compound) {
   return `
-    <div class="tire-visual" style="--tire-color:${compound.color};--tire-ring:${compound.ring}" aria-hidden="true">
+    <div class="tire-visual" style="--tire-color:${compound.color}" aria-hidden="true">
       <div class="tire-sidewall"></div>
       <div class="tire-tread"></div>
       <span class="tire-brand">P Zero</span>
@@ -1077,7 +1097,7 @@ function renderTires() {
   byId("tire-compound-grid").innerHTML = tireCompounds
     .map(
       (compound) => `
-        <article class="tire-card" style="--tire-color:${compound.color};--tire-ring:${compound.ring}">
+        <article class="tire-card" style="--tire-color:${compound.color}">
           ${tireVisual(compound)}
           <div class="tire-card-body">
             <div class="tire-card-head">
@@ -1099,7 +1119,7 @@ function renderTires() {
   byId("tire-wet-grid").innerHTML = tireWetCompounds
     .map(
       (compound) => `
-        <article class="tire-wet-card" style="--tire-color:${compound.color};--tire-ring:${compound.ring}">
+        <article class="tire-wet-card" style="--tire-color:${compound.color}">
           ${tireVisual(compound)}
           <div>
             <div class="tire-card-head">
@@ -1198,7 +1218,7 @@ function renderPenalties() {
 function renderDrivers() {
   const [spotlight, ...rest] = sortedDrivers();
   byId("spotlight-name").textContent = spotlight.name;
-  byId("spotlight-copy").textContent = spotlight.style;
+  byId("spotlight-copy").textContent = resolveStyleText(spotlight, drivers);
   byId("spotlight-stats").innerHTML = [
     ["Equipe", spotlight.team],
     ["Vitórias", spotlight.wins],
