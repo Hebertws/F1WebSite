@@ -16,6 +16,8 @@ const DRIVER_STANDINGS_API = "https://api.jolpi.ca/ergast/f1/current/driverstand
 // Filtra resultados de posição 1 (vencedores) de todas as corridas da
 // temporada atual — usado para preencher o "focus" do calendário sozinho.
 const RACE_WINNERS_API = "https://api.jolpi.ca/ergast/f1/current/results/1.json";
+const RACE_SCHEDULE_API = `https://api.jolpi.ca/ergast/f1/${new Date().getFullYear()}.json`;
+const BRAZIL_TIME_ZONE = "America/Sao_Paulo";
 
 // Pontuação de cada piloto local. Ela funciona como fallback se a API falhar
 // e também guarda textos editoriais que a API não fornece, como "style".
@@ -413,6 +415,43 @@ async function fetchRaceWinners() {
     });
   } catch (error) {
     console.warn("F1 Start: não foi possível atualizar vencedores do calendário automaticamente.", error);
+  } finally {
+    window.clearTimeout(timeout);
+  }
+}
+
+// Atualiza datas e horários oficiais do calendário. A API informa o horário
+// em UTC; a conversão para Brasília acontece somente na hora de exibir.
+async function fetchRaceSchedule() {
+  const controller = new AbortController();
+  const timeout = window.setTimeout(() => controller.abort(), 8000);
+
+  try {
+    const response = await fetch(RACE_SCHEDULE_API, {
+      signal: controller.signal,
+      headers: { Accept: "application/json" },
+    });
+
+    if (!response.ok) {
+      throw new Error(`API respondeu com status ${response.status}`);
+    }
+
+    const data = await response.json();
+    const races = data?.MRData?.RaceTable?.Races;
+
+    if (!Array.isArray(races)) {
+      throw new Error("API não retornou o calendário de corridas.");
+    }
+
+    races.forEach((race) => {
+      const calendarItem = calendar.find((item) => item.round === Number(race.round));
+      if (!calendarItem) return;
+
+      if (race.date) calendarItem.raceDate = race.date;
+      if (race.time) calendarItem.raceTimeUtc = `${race.date}T${race.time}`;
+    });
+  } catch (error) {
+    console.warn("F1 Start: usando calendário local como fallback.", error);
   } finally {
     window.clearTimeout(timeout);
   }
@@ -864,6 +903,25 @@ function formatWeekendRange(item) {
   return `${start.getDate()}-${end.getDate()} ${month}`;
 }
 
+function formatApiRaceTime(dateTime) {
+  if (!dateTime) return null;
+
+  const date = new Date(dateTime);
+  if (Number.isNaN(date.getTime())) return null;
+
+  const parts = new Intl.DateTimeFormat("pt-BR", {
+    timeZone: BRAZIL_TIME_ZONE,
+    day: "numeric",
+    month: "short",
+    hour: "2-digit",
+    minute: "2-digit",
+    hour12: false,
+  }).formatToParts(date);
+  const values = Object.fromEntries(parts.map(({ type, value }) => [type, value]));
+
+  return `${values.day} ${(values.month || "").replace(".", "")} ${values.hour}:${values.minute} BRT`;
+}
+
 // Monta os três (ou quatro, se sprint) horários de sessão do fim de semana.
 // Os horários são textos fixos em Brasília para não depender do fuso do
 // computador que está abrindo a página.
@@ -874,19 +932,20 @@ function buildSessions(item) {
   const fmt = (d) => `${d.getDate()} ${monthNamesPt[d.getMonth()]}`;
   const t = item.sessionTimes || {};
   const brt = (time) => `${time} BRT`;
+  const raceTime = formatApiRaceTime(item.raceTimeUtc) || `${fmt(end)} ${brt(t.race || "13:00")}`;
 
   if (item.sprint) {
     return [
       ["Sprint Qualifying", `${fmt(start)} ${brt(t.sprintQualifying || "11:30")}`],
       ["Sprint", `${fmt(saturday)} ${brt(t.sprint || "11:00")}`],
       ["Classificação", `${fmt(saturday)} ${brt(t.qualifying || "15:00")}`],
-      ["Corrida", `${fmt(end)} ${brt(t.race || "13:00")}`],
+      ["Corrida", raceTime],
     ];
   }
   return [
     ["Treino livre 1", `${fmt(start)} ${brt(t.practice1 || "11:30")}`],
     ["Classificação", `${fmt(saturday)} ${brt(t.qualifying || "14:00")}`],
-    ["Corrida", `${fmt(end)} ${brt(t.race || "13:00")}`],
+    ["Corrida", raceTime],
   ];
 }
 
@@ -1078,6 +1137,32 @@ function wireGlossarySearch() {
 
   input.addEventListener("input", () => {
     renderGuide(input.value);
+  });
+}
+
+function wireMobileNavigation() {
+  const toggle = byId("mobile-nav-toggle");
+  const navigation = byId("main-navigation");
+  if (!toggle || !navigation) return;
+
+  const closeNavigation = () => {
+    navigation.classList.remove("is-open");
+    toggle.setAttribute("aria-expanded", "false");
+    toggle.setAttribute("aria-label", "Abrir navegação");
+  };
+
+  toggle.addEventListener("click", () => {
+    const isOpen = navigation.classList.toggle("is-open");
+    toggle.setAttribute("aria-expanded", String(isOpen));
+    toggle.setAttribute("aria-label", isOpen ? "Fechar navegação" : "Abrir navegação");
+  });
+
+  navigation.querySelectorAll("a").forEach((link) => {
+    link.addEventListener("click", closeNavigation);
+  });
+
+  window.addEventListener("resize", () => {
+    if (window.innerWidth > 640) closeNavigation();
   });
 }
 
@@ -1701,7 +1786,7 @@ function wireEvents() {
 
 
 async function boot() {
-  await Promise.all([fetchDriverStandings(), fetchRaceWinners()]);
+  await Promise.all([fetchDriverStandings(), fetchRaceWinners(), fetchRaceSchedule()]);
   refreshCalendarDerivedData();
 
   renderHeroRace();
@@ -1721,6 +1806,7 @@ async function boot() {
   renderProjection();
   renderStrategySimulator();
   wireEvents();
+  wireMobileNavigation();
   wireStrategySimulator();
 
   if (window.lucide) {
