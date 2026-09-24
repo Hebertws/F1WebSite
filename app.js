@@ -620,6 +620,20 @@ const tireWetCompounds = [
   },
 ];
 
+const strategyWeather = {
+  dry: { label: "pista seca", ideal: ["Hard", "Medium", "Soft"], icon: "sun" },
+  damp: { label: "pista úmida", ideal: ["Intermediate", "Full Wet"], icon: "cloud-drizzle" },
+  wet: { label: "chuva forte", ideal: ["Full Wet", "Intermediate"], icon: "cloud-rain" },
+};
+
+const strategyTireProfile = {
+  Hard: { label: "Duro", pace: 6, durability: 10, color: "#f6f7f9" },
+  Medium: { label: "Médio", pace: 8, durability: 7, color: "#f9c846" },
+  Soft: { label: "Macio", pace: 10, durability: 4, color: "#f5222d" },
+  Intermediate: { label: "Intermediário", pace: 7, durability: 6, color: "#26d978" },
+  "Full Wet": { label: "Chuva", pace: 6, durability: 7, color: "#2b5cff" },
+};
+
 const tireTips = [
   {
     icon: "radio",
@@ -674,8 +688,6 @@ const sectorColors = [
   },
 ];
 
-// Penalidades: ordenadas da mais leve para a mais grave. O campo "level"
-// (1 a 4) alimenta o indicador visual de severidade na seção dedicada.
 const penalties = [
   {
     name: "Advertência",
@@ -732,11 +744,7 @@ const penalties = [
       "Cada infração soma pontos na licença do piloto. Ao atingir 12 pontos em 12 meses, ele é suspenso automaticamente de uma corrida.",
   },
 ];
-// (domingo, formato "AAAA-MM-DD"). O site usa essa data para descobrir
-// automaticamente qual etapa está "Concluído", "Atual" ou "Próximo", troca
-// o mapa do circuito e preenche o card "Fim de semana" (nome, voltas, km,
-// descrição) sozinho — não precisa editar nada disso manualmente.
-// Se uma data mudar (remarcação oficial), só atualize o "raceDate" aqui.
+
 const calendar = [
   { round: 1, race: "Austrália", track: "Melbourne", raceDate: "2026-03-08", focus: "Russell venceu", laps: 58, length: "5,278 km", description: "Corrida em parque urbano em Melbourne, com alta velocidade média e poucas chances de erro perto dos muros." },
   { round: 2, race: "China", track: "Shanghai", raceDate: "2026-03-15", focus: "Antonelli venceu", sprint: true, laps: 56, length: "5,451 km", description: "Circuito com retas longas e a característica curva 13 em espiral, que testa a resistência do pescoço dos pilotos." },
@@ -857,28 +865,28 @@ function formatWeekendRange(item) {
 }
 
 // Monta os três (ou quatro, se sprint) horários de sessão do fim de semana.
-// Por padrão usa horários aproximados típicos de F1. Se a etapa tiver o
-// campo "sessionTimes" preenchido (horário de Brasília, oficial), esses
-// valores substituem a aproximação — ver os objetos do array "calendar".
+// Os horários são textos fixos em Brasília para não depender do fuso do
+// computador que está abrindo a página.
 function buildSessions(item) {
   const { start, end } = getRaceWeekend(item);
   const saturday = new Date(start);
   saturday.setDate(saturday.getDate() + 1);
   const fmt = (d) => `${d.getDate()} ${monthNamesPt[d.getMonth()]}`;
   const t = item.sessionTimes || {};
+  const brt = (time) => `${time} BRT`;
 
   if (item.sprint) {
     return [
-      ["Sprint Qualifying", `${fmt(start)} ${t.sprintQualifying || "11:30"}`],
-      ["Sprint", `${fmt(saturday)} ${t.sprint || "11:00"}`],
-      ["Classificação", `${fmt(saturday)} ${t.qualifying || "15:00"}`],
-      ["Corrida", `${fmt(end)} ${t.race || "13:00"}`],
+      ["Sprint Qualifying", `${fmt(start)} ${brt(t.sprintQualifying || "11:30")}`],
+      ["Sprint", `${fmt(saturday)} ${brt(t.sprint || "11:00")}`],
+      ["Classificação", `${fmt(saturday)} ${brt(t.qualifying || "15:00")}`],
+      ["Corrida", `${fmt(end)} ${brt(t.race || "13:00")}`],
     ];
   }
   return [
-    ["Treino livre 1", `${fmt(start)} ${t.practice1 || "11:30"}`],
-    ["Classificação", `${fmt(saturday)} ${t.qualifying || "14:00"}`],
-    ["Corrida", `${fmt(end)} ${t.race || "13:00"}`],
+    ["Treino livre 1", `${fmt(start)} ${brt(t.practice1 || "11:30")}`],
+    ["Classificação", `${fmt(saturday)} ${brt(t.qualifying || "14:00")}`],
+    ["Corrida", `${fmt(end)} ${brt(t.race || "13:00")}`],
   ];
 }
 
@@ -1032,8 +1040,14 @@ function renderConstructors() {
     .join("");
 }
 
-function renderGuide() {
-  byId("guide-grid").innerHTML = guideTerms
+function renderGuide(searchTerm = "") {
+  const normalizedSearch = normalizeText(searchTerm);
+  const visibleTerms = guideTerms.filter((term) => {
+    if (!normalizedSearch) return true;
+    return normalizeText(`${term.title} ${term.description}`).includes(normalizedSearch);
+  });
+
+  byId("guide-grid").innerHTML = visibleTerms
     .map(
       (term) => `
         <article class="guide-card" style="--accent:${term.accent}">
@@ -1045,6 +1059,26 @@ function renderGuide() {
       `
     )
     .join("");
+
+  const status = byId("glossary-search-status");
+  if (status) {
+    status.textContent = visibleTerms.length
+      ? `${visibleTerms.length} ${visibleTerms.length === 1 ? "termo encontrado" : "termos encontrados"}.`
+      : "Nenhum termo encontrado. Tente outra palavra.";
+  }
+
+  if (window.lucide) {
+    window.lucide.createIcons();
+  }
+}
+
+function wireGlossarySearch() {
+  const input = byId("glossary-search-input");
+  if (!input) return;
+
+  input.addEventListener("input", () => {
+    renderGuide(input.value);
+  });
 }
 
 // Efeito sonoro ao passar o mouse sobre o pneu.
@@ -1213,6 +1247,75 @@ function renderPenalties() {
   if (window.lucide) {
     window.lucide.createIcons();
   }
+}
+
+function calculateStrategy() {
+  const weather = byId("strategy-weather")?.value || "dry";
+  const startingTire = byId("strategy-starting-tire")?.value || "Medium";
+  const stops = Number(byId("strategy-stops")?.value || 1);
+  const pitLap = Number(byId("strategy-pit-lap")?.value || 20);
+  const weatherData = strategyWeather[weather];
+  const tire = strategyTireProfile[startingTire];
+  const isIdealTire = weatherData.ideal.includes(startingTire);
+  const isLateStop = pitLap >= 32;
+  const isEarlyStop = pitLap <= 12;
+  const compatibility = isIdealTire ? 10 : weather === "dry" ? 3 : 1;
+  const stopBalance = weather === "dry" ? (stops === 1 ? 10 : stops === 2 ? 7 : 3) : stops === 1 ? 8 : 5;
+  const timingScore = stops === 0 ? (isLateStop ? 4 : 7) : isEarlyStop ? 7 : isLateStop ? 6 : 9;
+  const score = Math.round((compatibility * 4 + tire.pace + tire.durability + stopBalance + timingScore) / 3);
+
+  let title = "Plano equilibrado";
+  let copy = `O ${tire.label.toLowerCase()} pode funcionar, mas há espaço para ajustar o plano.`;
+  let note = `Em ${weatherData.label}, o pneu ${tire.label.toLowerCase()} entrega ritmo ${tire.pace}/10 e durabilidade ${tire.durability}/10.`;
+
+  if (!isIdealTire) {
+    title = "Atenção ao composto";
+    copy = `O pneu ${tire.label.toLowerCase()} não é a escolha mais adequada para ${weatherData.label}.`;
+    note = `Para essa condição, a escolha mais segura é ${strategyTireProfile[weatherData.ideal[0]].label.toLowerCase()}, porque trabalha melhor com a aderência disponível.`;
+  } else if (weather === "dry" && stops === 1 && !isEarlyStop && !isLateStop) {
+    title = "Plano consistente";
+    copy = `Uma parada na ${pitLap}ª volta cria um bom compromisso entre ritmo e vida útil.`;
+    note = "Em uma corrida seca, uma parada costuma ser o ponto de partida mais simples para entender estratégia.";
+  } else if (weather !== "dry" && startingTire === "Full Wet") {
+    title = "Máxima segurança";
+    copy = "O pneu de chuva protege contra poças, mas cobra velocidade quando o asfalto começa a secar.";
+    note = "Se a pista melhorar, a equipe pode trocar para intermediários ou slicks para recuperar ritmo.";
+  }
+
+  const risk = score >= 24 ? "Baixo" : score >= 18 ? "Médio" : "Alto";
+  return { title, copy, note, risk, score, weatherData, tire };
+}
+
+function renderStrategySimulator() {
+  const result = calculateStrategy();
+  const title = byId("strategy-result-title");
+  const copy = byId("strategy-result-copy");
+  const note = byId("strategy-note");
+  const icon = byId("strategy-result-icon");
+  const metrics = byId("strategy-metrics");
+  if (!title || !copy || !note || !metrics) return;
+
+  title.textContent = result.title;
+  copy.textContent = result.copy;
+  note.textContent = result.note;
+  metrics.innerHTML = [
+    ["Compatibilidade", `${result.weatherData.ideal.includes(byId("strategy-starting-tire")?.value) ? "Alta" : "Baixa"}`, "compatibility"],
+    ["Risco do plano", result.risk, "risk"],
+    ["Leitura", `${result.score}/30`, "score"],
+  ]
+    .map(([label, value, kind]) => `<div class="strategy-metric"><span>${label}</span><strong class="${kind}">${value}</strong></div>`)
+    .join("");
+
+  if (icon) {
+    icon.setAttribute("data-lucide", result.weatherData.icon);
+  }
+  if (window.lucide) window.lucide.createIcons();
+}
+
+function wireStrategySimulator() {
+  ["strategy-weather", "strategy-starting-tire", "strategy-stops", "strategy-pit-lap"].forEach((id) => {
+    byId(id)?.addEventListener("change", renderStrategySimulator);
+  });
 }
 
 function renderDrivers() {
@@ -1608,6 +1711,7 @@ async function boot() {
   renderDriverDataStatus();
   renderConstructors();
   renderGuide();
+  wireGlossarySearch();
   renderTires();
   renderSectors();
   renderPenalties();
@@ -1615,7 +1719,9 @@ async function boot() {
   renderCalendar();
   renderSimulatorControls();
   renderProjection();
+  renderStrategySimulator();
   wireEvents();
+  wireStrategySimulator();
 
   if (window.lucide) {
     window.lucide.createIcons();

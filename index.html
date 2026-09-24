@@ -70,7 +70,7 @@
 
         <div class="dashboard-grid">
           <article class="feature-panel next-race-panel">
-            <div class="panel-kicker">Fim de semana</div>
+            <div class="panel-kicker">Fim de semana · Horário de Brasília</div>
             <h3 id="race-name">Grande Prêmio</h3>
             <p id="race-description"></p>
             <div class="race-meta" id="race-meta"></div>
@@ -146,6 +146,19 @@
             Um guia rápido para entender os avisos da direção de prova, as bandeiras,
             neutralizações, pneus e estratégias que aparecem durante uma corrida.
           </p>
+        </div>
+        <div class="glossary-search" role="search">
+          <label for="glossary-search-input">Pesquisar no glossário</label>
+          <div class="glossary-search-field">
+            <i data-lucide="search" aria-hidden="true"></i>
+            <input
+              id="glossary-search-input"
+              type="search"
+              placeholder="Ex.: pneus, bandeira, estratégia..."
+              autocomplete="off"
+            />
+          </div>
+          <p class="glossary-search-status" id="glossary-search-status" aria-live="polite"></p>
         </div>
         <div class="guide-grid" id="guide-grid"></div>
 
@@ -265,6 +278,71 @@
                 <tbody id="projection-standings"></tbody>
               </table>
             </div>
+          </article>
+        </div>
+
+        <div class="strategy-layout">
+          <article class="strategy-panel">
+            <div class="sim-header">
+              <div>
+                <div class="panel-kicker">Escolha sua estratégia</div>
+                <h3>Simulador de estratégia</h3>
+              </div>
+              <span class="strategy-badge">Educativo</span>
+            </div>
+            <p class="strategy-intro">
+              Monte um plano de pneus e veja como o clima, o desgaste e as paradas mudam o risco da corrida.
+            </p>
+            <div class="strategy-controls">
+              <label class="strategy-control">
+                <span>Condição da pista</span>
+                <select id="strategy-weather">
+                  <option value="dry">Seca</option>
+                  <option value="damp">Úmida</option>
+                  <option value="wet">Chuva forte</option>
+                </select>
+              </label>
+              <label class="strategy-control">
+                <span>Pneu inicial</span>
+                <select id="strategy-starting-tire">
+                  <option value="Soft">Macio</option>
+                  <option value="Medium" selected>Médio</option>
+                  <option value="Hard">Duro</option>
+                  <option value="Intermediate">Intermediário</option>
+                  <option value="Full Wet">Chuva</option>
+                </select>
+              </label>
+              <label class="strategy-control">
+                <span>Paradas nos boxes</span>
+                <select id="strategy-stops">
+                  <option value="0">Nenhuma</option>
+                  <option value="1" selected>Uma parada</option>
+                  <option value="2">Duas paradas</option>
+                </select>
+              </label>
+              <label class="strategy-control">
+                <span>Volta da parada</span>
+                <select id="strategy-pit-lap">
+                  <option value="12">12ª volta</option>
+                  <option value="20" selected>20ª volta</option>
+                  <option value="32">32ª volta</option>
+                  <option value="45">45ª volta</option>
+                </select>
+              </label>
+            </div>
+          </article>
+
+          <article class="strategy-result feature-panel" aria-live="polite">
+            <div class="panel-kicker">Leitura do plano</div>
+            <div class="strategy-result-heading">
+              <div>
+                <h3 id="strategy-result-title">Plano equilibrado</h3>
+                <p id="strategy-result-copy"></p>
+              </div>
+              <i id="strategy-result-icon" data-lucide="gauge" aria-hidden="true"></i>
+            </div>
+            <div class="strategy-metrics" id="strategy-metrics"></div>
+            <div class="strategy-note" id="strategy-note"></div>
           </article>
         </div>
       </section>

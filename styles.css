@@ -411,6 +411,172 @@ h1, h2, h3, h4, h5, h6, p, dt, dd, li {
   gap: 16px;
 }
 
+.strategy-layout {
+  max-width: 1120px;
+  margin: 24px auto 0;
+  display: grid;
+  grid-template-columns: 1.05fr 0.95fr;
+  gap: 16px;
+}
+
+.strategy-panel,
+.strategy-result {
+  min-width: 0;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  background: var(--surface);
+}
+
+.strategy-panel {
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(50, 212, 216, 0.1), transparent 56%),
+    var(--surface);
+}
+
+.strategy-panel h3 {
+  margin: 6px 0 0;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.strategy-badge {
+  border: 1px solid rgba(50, 212, 216, 0.45);
+  padding: 7px 10px;
+  color: var(--cyan);
+  font-size: 0.72rem;
+  font-weight: 900;
+  text-transform: uppercase;
+  white-space: nowrap;
+}
+
+.strategy-intro {
+  margin: 18px 0 0;
+  color: var(--soft);
+  line-height: 1.6;
+}
+
+.strategy-controls {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 22px;
+}
+
+.strategy-control {
+  display: grid;
+  gap: 7px;
+}
+
+.strategy-control span {
+  color: var(--muted);
+  font-size: 0.76rem;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+.strategy-control select {
+  width: 100%;
+  min-height: 44px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 12px;
+  color: var(--text);
+  background: #0e1117;
+  font: inherit;
+  color-scheme: dark;
+}
+
+.strategy-control select:focus {
+  border-color: var(--cyan);
+  outline: 2px solid rgba(50, 212, 216, 0.18);
+  outline-offset: 2px;
+}
+
+.strategy-result {
+  padding: 22px;
+  background:
+    linear-gradient(135deg, rgba(245, 34, 45, 0.14), transparent 62%),
+    var(--surface);
+}
+
+.strategy-result-heading {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.strategy-result-heading h3 {
+  margin: 8px 0 8px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(1.8rem, 3vw, 2.55rem);
+  line-height: 0.95;
+  text-transform: uppercase;
+}
+
+.strategy-result-heading p {
+  margin: 0;
+  color: var(--soft);
+  line-height: 1.6;
+}
+
+.strategy-result-heading > svg {
+  flex: 0 0 auto;
+  width: 42px;
+  height: 42px;
+  color: var(--red);
+}
+
+.strategy-metrics {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 10px;
+  margin-top: 24px;
+}
+
+.strategy-metric {
+  border-top: 2px solid var(--red);
+  padding-top: 8px;
+}
+
+.strategy-metric span {
+  display: block;
+  color: var(--muted);
+  font-size: 0.72rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.strategy-metric strong {
+  display: block;
+  margin-top: 5px;
+  font-size: 1.05rem;
+}
+
+.strategy-metric .compatibility {
+  color: var(--green);
+}
+
+.strategy-metric .risk {
+  color: var(--yellow);
+}
+
+.strategy-metric .score {
+  color: var(--cyan);
+}
+
+.strategy-note {
+  margin-top: 20px;
+  border-left: 3px solid var(--cyan);
+  padding: 12px 14px;
+  color: var(--soft);
+  background: rgba(50, 212, 216, 0.07);
+  line-height: 1.55;
+}
+
 .feature-panel,
 .standings-card,
 .simulator-panel,
@@ -776,6 +942,64 @@ td:last-child {
   display: grid;
   grid-template-columns: repeat(3, 1fr);
   gap: 16px;
+}
+
+.glossary-search {
+  max-width: 1120px;
+  margin: 0 auto 24px;
+}
+
+.glossary-search label {
+  display: block;
+  margin-bottom: 8px;
+  color: var(--soft);
+  font-size: 0.84rem;
+  font-weight: 800;
+  text-transform: uppercase;
+}
+
+.glossary-search-field {
+  position: relative;
+  max-width: 560px;
+}
+
+.glossary-search-field svg {
+  position: absolute;
+  top: 50%;
+  left: 14px;
+  width: 18px;
+  height: 18px;
+  color: var(--muted);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.glossary-search input {
+  width: 100%;
+  min-height: 48px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 0 16px 0 44px;
+  color: var(--text);
+  background: var(--surface);
+  font: inherit;
+}
+
+.glossary-search input:focus {
+  border-color: var(--red);
+  outline: 2px solid rgba(245, 34, 45, 0.2);
+  outline-offset: 2px;
+}
+
+.glossary-search input::placeholder {
+  color: var(--muted);
+}
+
+.glossary-search-status {
+  min-height: 1.4em;
+  margin: 8px 0 0;
+  color: var(--muted);
+  font-size: 0.86rem;
 }
 
 .guide-card,
@@ -1589,6 +1813,7 @@ td:last-child {
   .dashboard-grid,
   .driver-layout,
   .simulator-layout,
+  .strategy-layout,
   .tires-layout,
   .sectors-layout,
   .penalties-layout {
@@ -1661,6 +1886,8 @@ td:last-child {
   .driver-grid,
   .calendar-list,
   .position-grid,
+  .strategy-controls,
+  .strategy-metrics,
   .ticket-grid,
   .tire-compound-grid,
   .tire-wet-grid,
