@@ -189,7 +189,7 @@ img {
   gap: clamp(22px, 4vw, 60px);
   padding: clamp(96px, 13vh, 160px) clamp(18px, 5vw, 72px) clamp(42px, 7vh, 72px);
   overflow: hidden;
-  background-image: url("assets/hero-race-car.jpg");
+  background-image: url("../assets/hero-race-car.jpg");
   background-size: cover;
   background-position: center;
 }
@@ -1421,6 +1421,25 @@ td:last-child {
   gap: 16px;
 }
 
+.driver-directory-cta {
+  max-width: 1120px;
+  margin: 22px auto 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  padding: 18px 20px;
+  background: linear-gradient(110deg, rgba(245, 34, 45, 0.1), rgba(255, 255, 255, 0.025));
+}
+
+.driver-directory-cta p {
+  margin: 0;
+  color: var(--soft);
+  line-height: 1.5;
+}
+
 .driver-card {
   position: relative;
   overflow: hidden;
@@ -1846,6 +1865,7 @@ td:last-child {
   }
 
   .card-header,
+  .driver-directory-cta,
   .site-footer {
     align-items: flex-start;
     flex-direction: column;

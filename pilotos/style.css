@@ -1,0 +1,132 @@
+/* Página de pilotos — depende de styles.css (variáveis, header, footer, botões) */
+
+.pg-hero {
+  position: relative;
+  padding: clamp(72px, 12vh, 130px) clamp(18px, 5vw, 72px) clamp(36px, 6vh, 60px);
+  background:
+    radial-gradient(circle at 85% 0%, rgba(245, 34, 45, 0.22), transparent 46%),
+    linear-gradient(180deg, rgba(8, 9, 11, 0.4), var(--bg));
+  border-bottom: 1px solid var(--line);
+}
+.pg-hero > * { max-width: 1120px; margin-left: auto; margin-right: auto; }
+.pg-hero h1 {
+  margin-top: 6px; margin-bottom: 14px;
+  font-family: "Barlow Condensed", sans-serif;
+  font-size: clamp(4rem, 13vw, 9.5rem);
+  line-height: 0.8; text-transform: uppercase;
+}
+.pg-hero p { max-width: 560px; color: var(--soft); font-size: 1.1rem; line-height: 1.65; }
+.pg-hero-stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px !important; margin-bottom: 0; }
+.pg-hero-stats div { min-width: 120px; border-left: 3px solid var(--red); padding: 2px 14px; }
+.pg-hero-stats dt { color: var(--muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
+.pg-hero-stats dd { margin: 2px 0 0; font-family: "Barlow Condensed", sans-serif; font-size: 2.4rem; font-weight: 800; line-height: 1; }
+
+.main-nav a[aria-current="page"] { color: var(--text); }
+.main-nav a[aria-current="page"]::after { transform: scaleX(1); }
+
+.pilots-section { background: #0c0e12; }
+.toolbar, .pilot-count, .pilot-grid { max-width: 1120px; margin-left: auto; margin-right: auto; }
+.toolbar { display: grid; gap: 14px; }
+.pilot-search { max-width: 420px; }
+.team-filters { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip {
+  display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px;
+  border: 1px solid var(--line); border-radius: 999px; color: var(--soft);
+  background: rgba(255, 255, 255, 0.04); font-size: 0.84rem; font-weight: 700; cursor: pointer;
+  transition: border-color 0.2s, background 0.2s, color 0.2s;
+}
+.chip::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--team-color, var(--red)); }
+.chip:hover { border-color: rgba(255, 255, 255, 0.34); color: var(--text); }
+.chip[aria-pressed="true"] { border-color: var(--team-color, var(--red)); background: rgba(255, 255, 255, 0.1); color: var(--text); }
+.pilot-count { margin-top: 18px; margin-bottom: 16px; color: var(--muted); font-size: 0.9rem; }
+
+.pilot-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
+.pilot-card {
+  position: relative; display: flex; flex-direction: column; padding: 0; overflow: hidden; text-align: left;
+  border: 1px solid var(--line); border-radius: var(--radius); color: var(--text); cursor: pointer;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
+  transition: transform 0.25s ease, border-color 0.25s ease;
+}
+.pilot-card:hover, .pilot-card:focus-visible { transform: translateY(-4px); border-color: var(--team-color); }
+.pilot-photo, .pm-photo {
+  position: relative; overflow: hidden; aspect-ratio: 4 / 5;
+  background:
+    radial-gradient(circle at 50% 0%, color-mix(in srgb, var(--team-color) 55%, transparent), transparent 70%),
+    #0d1016;
+}
+.pilot-photo img, .pm-photo img {
+  position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; object-position: center top;
+}
+.pilot-num {
+  position: absolute; z-index: 0; right: 8px; top: 2px;
+  font-family: "Barlow Condensed", sans-serif; font-size: 6.5rem; font-weight: 800; line-height: 1;
+  color: transparent; -webkit-text-stroke: 1.5px rgba(255, 255, 255, 0.35);
+}
+.pilot-photo img { z-index: 1; }
+.pilot-photo::after {
+  content: ""; position: absolute; inset: auto 0 0 0; height: 55%; z-index: 2;
+  background: linear-gradient(0deg, #0e1015 4%, transparent);
+}
+.initials {
+  position: absolute; inset: 0; display: grid; place-items: center;
+  font-family: "Barlow Condensed", sans-serif; font-size: 5rem; font-weight: 800;
+  color: rgba(255, 255, 255, 0.18);
+}
+.has-photo .initials { display: none; }
+.pilot-info { position: relative; z-index: 3; margin-top: -46px; padding: 0 16px 16px; border-bottom: 4px solid var(--team-color); }
+.pilot-team { color: var(--team-color); font-size: 0.78rem; font-weight: 800; }
+.pilot-info h3 {
+  margin: 2px 0 6px; font-family: "Barlow Condensed", sans-serif; font-size: 1.75rem; line-height: 0.95; text-transform: uppercase;
+}
+.pilot-info h3 span { display: block; font-size: 1.1rem; font-weight: 600; color: var(--soft); }
+.pilot-info p { margin: 0; color: var(--muted); font-size: 0.84rem; }
+.empty-state { grid-column: 1 / -1; padding: 40px 0; color: var(--muted); }
+
+/* Modal */
+.pilot-modal-overlay {
+  position: fixed; inset: 0; z-index: 80; display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: rgba(5, 6, 8, 0.78); backdrop-filter: blur(6px); opacity: 0; transition: opacity 0.25s ease;
+}
+.pilot-modal-overlay[hidden] { display: none; }
+.pilot-modal-overlay.is-visible { opacity: 1; }
+.pilot-modal {
+  position: relative; display: grid; grid-template-columns: minmax(0, 0.8fr) minmax(0, 1.2fr);
+  width: min(900px, 100%); max-height: 92vh; overflow-y: auto;
+  border: 1px solid var(--line); border-top: 4px solid var(--team-color); border-radius: var(--radius);
+  background: var(--surface); box-shadow: var(--shadow);
+  transform: translateY(14px) scale(0.97); transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1);
+}
+.pilot-modal-overlay.is-visible .pilot-modal { transform: none; }
+.pm-photo { aspect-ratio: auto; min-height: 340px; }
+.pm-photo .pilot-num { font-size: 9rem; }
+.pm-body { padding: 28px; }
+.pm-body h3 { margin: 4px 0 4px; font-family: "Barlow Condensed", sans-serif; font-size: clamp(2.2rem, 5vw, 3.4rem); line-height: 0.9; text-transform: uppercase; }
+.pm-sub { margin: 0 0 16px; color: var(--muted); font-weight: 600; }
+.pm-bio { margin: 0 0 20px; color: var(--soft); line-height: 1.7; }
+.pm-stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin: 0 0 18px; }
+.pm-stats div { border-top: 2px solid var(--team-color); padding-top: 8px; }
+.pm-stats dt { color: var(--muted); font-size: 0.72rem; font-weight: 800; text-transform: uppercase; }
+.pm-stats dd { margin: 3px 0 0; font-family: "Barlow Condensed", sans-serif; font-size: 1.25rem; font-weight: 700; }
+.pm-tags { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 22px; }
+.pm-tags span { border: 1px solid var(--line); border-radius: 999px; padding: 6px 11px; color: var(--soft); background: rgba(255, 255, 255, 0.04); font-size: 0.78rem; font-weight: 700; }
+.pm-nav { display: flex; gap: 10px; }
+.pm-close {
+  position: absolute; top: 14px; right: 14px; z-index: 5; display: grid; place-items: center; width: 36px; height: 36px;
+  border: 1px solid var(--line); border-radius: 50%; color: var(--text); background: rgba(8, 9, 11, 0.8); cursor: pointer;
+}
+.pm-close:hover { background: var(--red); border-color: var(--red); }
+.pm-close svg { width: 17px; height: 17px; }
+
+:focus-visible { outline: 2px solid var(--yellow); outline-offset: 2px; }
+
+@media (max-width: 980px) { .pilot-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (max-width: 720px) {
+  .pilot-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; }
+  .pilot-num { font-size: 4.2rem; }
+  .pilot-info h3 { font-size: 1.4rem; }
+  .pilot-modal { grid-template-columns: 1fr; }
+  .pm-photo { min-height: 0; aspect-ratio: 16 / 11; }
+  .pm-body { padding: 20px; }
+}
+@media (max-width: 420px) { .pm-stats { grid-template-columns: repeat(2, 1fr); } }
+@media (prefers-reduced-motion: reduce) { * { transition: none !important; } }
