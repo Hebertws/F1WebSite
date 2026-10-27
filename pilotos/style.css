@@ -8,15 +8,25 @@
     linear-gradient(180deg, rgba(8, 9, 11, 0.4), var(--bg));
   border-bottom: 1px solid var(--line);
 }
-.pg-hero > * { max-width: 1120px; margin-left: auto; margin-right: auto; }
+.pg-hero-content { max-width: 1120px; margin: 0 auto; }
 .pg-hero h1 {
-  margin-top: 6px; margin-bottom: 14px;
+  margin: 6px 0 22px;
   font-family: "Barlow Condensed", sans-serif;
   font-size: clamp(4rem, 13vw, 9.5rem);
   line-height: 0.8; text-transform: uppercase;
 }
-.pg-hero p { max-width: 560px; color: var(--soft); font-size: 1.1rem; line-height: 1.65; }
-.pg-hero-stats { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 28px !important; margin-bottom: 0; }
+.pg-hero p {
+  max-width: 620px;
+  margin: 0;
+  border-left: 3px solid var(--red);
+  border-radius: 0 8px 8px 0;
+  padding: 12px 18px;
+  color: var(--soft);
+  background: linear-gradient(90deg, rgba(245, 34, 45, 0.09), rgba(255, 255, 255, 0.025));
+  font-size: clamp(0.98rem, 1.4vw, 1.1rem);
+  line-height: 1.65;
+}
+.pg-hero-stats { display: flex; flex-wrap: wrap; gap: 12px; margin: 28px 0 0; }
 .pg-hero-stats div { min-width: 120px; border-left: 3px solid var(--red); padding: 2px 14px; }
 .pg-hero-stats dt { color: var(--muted); font-size: 0.75rem; font-weight: 800; text-transform: uppercase; }
 .pg-hero-stats dd { margin: 2px 0 0; font-family: "Barlow Condensed", sans-serif; font-size: 2.4rem; font-weight: 800; line-height: 1; }
