@@ -30,7 +30,7 @@ let drivers = [
     points: 242,
     wins: 5,
     podiums: 7,
-    style: "Amplia a liderança do campeonato após o Sprint da Hungria, com {gap:George Russell} pontos de vantagem sobre Russell, e cravou a pole em Silverstone.",
+    style: "Lidera o campeonato com {gap:George Russell} pontos de vantagem sobre Russell, destacando-se pela velocidade e consistência ao longo da temporada.",
   },
   {
     name: "Lewis Hamilton",
@@ -811,20 +811,6 @@ const calendar = [
 ];
 
 const pointSystem = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
-
-// ============================================================================
-// CÁLCULO AUTOMÁTICO DA ETAPA ATUAL — baseado na data de hoje
-// ============================================================================
-// Cada GP é tratado como um fim de semana de sexta a domingo, terminando no
-// "raceDate" (domingo da corrida, ver array "calendar" acima).
-// Regra:
-//   - Se hoje está entre sexta-feira (raceDate - 2 dias) e o próprio domingo
-//     (até o fim do dia) -> etapa "Atual".
-//   - Se o domingo já passou -> "Concluído".
-//   - Se ainda não chegou -> "Próximo" (a primeira etapa futura é destacada
-//     como a "próxima corrida" sempre que não há nenhuma etapa "Atual").
-// Nada disso precisa ser editado manualmente: basta manter "raceDate"
-// correto em cada item do calendário.
 
 function getRaceWeekend(item) {
   const raceDay = new Date(`${item.raceDate}T23:59:59`);
