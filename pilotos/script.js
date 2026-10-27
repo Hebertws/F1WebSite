@@ -20,7 +20,7 @@ const PILOTS = [
   ["lawson", "Liam Lawson", 30, "Racing Bulls", "Nova Zelândia", "2002-02-11", "Hastings", 2023, "0", "Pupilo da Red Bull, entrou na F1 como substituto em 2023 e impressionou pela rapidez. Passou rapidamente pela equipe principal e hoje é o líder da Racing Bulls.", ["Reserva de luxo", "Combativo"]],
   ["bearman", "Oliver Bearman", 87, "Haas F1 Team", "Reino Unido", "2005-05-08", "Chelmsford", 2024, "0", "Entrou para a história ao estrear pela Ferrari na Arábia Saudita em 2024, substituindo Sainz com apenas 18 anos, e pontuou logo de cara. Hoje é peça fixa da Haas.", ["Estreia relâmpago", "Academia Ferrari"]],
   ["colapinto", "Franco Colapinto", 43, "Alpine", "Argentina", "2003-05-27", "Pilar", 2024, "0", "Chegou à Williams no meio de 2024 e pontuou nas primeiras corridas, o que causou comoção na Argentina. Assumiu o segundo carro da Alpine e carrega uma torcida apaixonada.", ["Fenômeno argentino", "Torcida gigante"]],
-  ["lindblad", "Arvid Lindblad", 7, "Racing Bulls", "Reino Unido", "2007-08-08", "Londres", 2026, "0", "Um dos pilotos mais jovens da história a chegar ao grid, é fruto do programa da Red Bull e estreou na F1 em 2026. Tem ascendência indiana e já é visto como uma grande promessa britânica.", ["Novato 2026", "Programa Red Bull"]],
+  ["lindblad", "Arvid Lindblad", 41, "Racing Bulls", "Reino Unido", "2007-08-08", "Londres", 2026, "0", "Um dos pilotos mais jovens da história a chegar ao grid, é fruto do programa da Red Bull e estreou na F1 em 2026. Tem ascendência indiana e já é visto como uma grande promessa britânica.", ["Novato 2026", "Programa Red Bull"]],
   ["sainz", "Carlos Sainz", 55, "Williams", "Espanha", "1994-09-01", "Madri", 2015, "0", "Filho do bicampeão de rali de mesmo nome, soma quatro vitórias na F1, duas pela Ferrari e outras duas na McLaren e na Ferrari de novo, todas com inteligência de corrida. Desde 2025 é o líder técnico da Williams.", ["4 vitórias", "Cérebro estrategista"]],
   ["albon", "Alexander Albon", 23, "Williams", "Tailândia", "1996-03-23", "Londres", 2019, "0", "Nascido em Londres, corre sob a bandeira da Tailândia. Reconstruiu a carreira na Williams, onde é o piloto mais experiente da equipe e um dos mais eficientes em resultados.", ["Corre pela Tailândia", "Renascimento"]],
   ["ocon", "Esteban Ocon", 31, "Haas F1 Team", "França", "1996-09-17", "Évreux", 2016, "0", "Venceu o GP da Hungria de 2020 pela Alpine, com uma defesa de posição memorável. Chegou à Haas em 2025 em busca de um novo ciclo.", ["Vitória na Hungria", "Defesa de ferro"]],
@@ -171,10 +171,14 @@ async function loadStandings() {
   try {
     const res = await fetch("https://api.jolpi.ca/ergast/f1/current/driverstandings.json");
     const list = (await res.json()).MRData.StandingsTable.StandingsLists[0]?.DriverStandings || [];
+    let gridPosition = 0;
     list.forEach((s) => {
       const fam = norm(s.Driver.familyName);
       const p = PILOTS.find((x) => norm(x.name).includes(fam));
-      if (p) Object.assign(p, { points: Number(s.points), wins: Number(s.wins), pos: Number(s.position) });
+      if (p) {
+        gridPosition += 1;
+        Object.assign(p, { points: Number(s.points), wins: Number(s.wins), pos: gridPosition });
+      }
     });
     renderGrid();
   } catch (err) {

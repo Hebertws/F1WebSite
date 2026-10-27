@@ -144,7 +144,7 @@ let drivers = [
   },
   {
     name: "Arvid Lindblad",
-    number: 7,
+    number: 41,
     team: "Racing Bulls",
     country: "Reino Unido",
     points: 14,
