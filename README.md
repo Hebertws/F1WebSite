@@ -6,7 +6,7 @@
 
 </div>
 
-Site de Fórmula 1 para iniciantes, com dashboard interativo, calendário de corridas, classificação, glossário de termos da modalidade e simuladores para entender melhor o esporte.
+Site de Fórmula 1 para iniciantes, com dashboard interativo, calendário de corridas, classificação e glossário de termos da modalidade.
 
 ## ✨ Visão geral
 
@@ -19,7 +19,6 @@ O projeto reúne:
 - guia de termos usados na transmissão
 - explicações sobre pneus, bandeiras, setores e penalidades
 - calendário com circuitos e informações das provas
-- simulador de pontuação e estratégias
 
 ## 🏎️ O que você encontra no projeto
 
@@ -34,10 +33,6 @@ O projeto reúne:
 - Explicações sobre DRS, bandeiras, pneus e regras
 - Cores de setor e penalidades
 - Conteúdo educativo voltado para iniciantes
-
-### Simuladores
-- Simulador de pontos para montar um pódio fictício
-- Simulador de estratégia para testar combinações de pneus e paradas
 
 ## 🛠️ Tecnologias utilizadas
 

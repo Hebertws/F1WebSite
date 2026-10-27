@@ -659,20 +659,6 @@ const tireWetCompounds = [
   },
 ];
 
-const strategyWeather = {
-  dry: { label: "pista seca", ideal: ["Hard", "Medium", "Soft"], icon: "sun" },
-  damp: { label: "pista úmida", ideal: ["Intermediate", "Full Wet"], icon: "cloud-drizzle" },
-  wet: { label: "chuva forte", ideal: ["Full Wet", "Intermediate"], icon: "cloud-rain" },
-};
-
-const strategyTireProfile = {
-  Hard: { label: "Duro", pace: 6, durability: 10, color: "#f6f7f9" },
-  Medium: { label: "Médio", pace: 8, durability: 7, color: "#f9c846" },
-  Soft: { label: "Macio", pace: 10, durability: 4, color: "#f5222d" },
-  Intermediate: { label: "Intermediário", pace: 7, durability: 6, color: "#26d978" },
-  "Full Wet": { label: "Chuva", pace: 6, durability: 7, color: "#2b5cff" },
-};
-
 const tireTips = [
   {
     icon: "radio",
@@ -809,8 +795,6 @@ const calendar = [
   { round: 22, race: "Qatar", track: "Lusail", raceDate: "2026-11-29", focus: "curvas médias", laps: 57, length: "5,380 km", description: "Sequência de curvas de média e alta velocidade encadeadas, disputada à noite sob forte calor do Golfo Pérsico." },
   { round: 23, race: "Abu Dhabi", track: "Yas Marina", raceDate: "2026-12-06", focus: "decisão", final: true, laps: 58, length: "5,281 km", description: "Etapa final da temporada, correndo do fim de tarde para a noite — muitas vezes decisiva para o título." },
 ];
-
-const pointSystem = [25, 18, 15, 12, 10, 8, 6, 4, 2, 1];
 
 function getRaceWeekend(item) {
   const raceDay = new Date(`${item.raceDate}T23:59:59`);
@@ -1322,75 +1306,6 @@ function renderPenalties() {
   }
 }
 
-function calculateStrategy() {
-  const weather = byId("strategy-weather")?.value || "dry";
-  const startingTire = byId("strategy-starting-tire")?.value || "Medium";
-  const stops = Number(byId("strategy-stops")?.value || 1);
-  const pitLap = Number(byId("strategy-pit-lap")?.value || 20);
-  const weatherData = strategyWeather[weather];
-  const tire = strategyTireProfile[startingTire];
-  const isIdealTire = weatherData.ideal.includes(startingTire);
-  const isLateStop = pitLap >= 32;
-  const isEarlyStop = pitLap <= 12;
-  const compatibility = isIdealTire ? 10 : weather === "dry" ? 3 : 1;
-  const stopBalance = weather === "dry" ? (stops === 1 ? 10 : stops === 2 ? 7 : 3) : stops === 1 ? 8 : 5;
-  const timingScore = stops === 0 ? (isLateStop ? 4 : 7) : isEarlyStop ? 7 : isLateStop ? 6 : 9;
-  const score = Math.round((compatibility * 4 + tire.pace + tire.durability + stopBalance + timingScore) / 3);
-
-  let title = "Plano equilibrado";
-  let copy = `O ${tire.label.toLowerCase()} pode funcionar, mas há espaço para ajustar o plano.`;
-  let note = `Em ${weatherData.label}, o pneu ${tire.label.toLowerCase()} entrega ritmo ${tire.pace}/10 e durabilidade ${tire.durability}/10.`;
-
-  if (!isIdealTire) {
-    title = "Atenção ao composto";
-    copy = `O pneu ${tire.label.toLowerCase()} não é a escolha mais adequada para ${weatherData.label}.`;
-    note = `Para essa condição, a escolha mais segura é ${strategyTireProfile[weatherData.ideal[0]].label.toLowerCase()}, porque trabalha melhor com a aderência disponível.`;
-  } else if (weather === "dry" && stops === 1 && !isEarlyStop && !isLateStop) {
-    title = "Plano consistente";
-    copy = `Uma parada na ${pitLap}ª volta cria um bom compromisso entre ritmo e vida útil.`;
-    note = "Em uma corrida seca, uma parada costuma ser o ponto de partida mais simples para entender estratégia.";
-  } else if (weather !== "dry" && startingTire === "Full Wet") {
-    title = "Máxima segurança";
-    copy = "O pneu de chuva protege contra poças, mas cobra velocidade quando o asfalto começa a secar.";
-    note = "Se a pista melhorar, a equipe pode trocar para intermediários ou slicks para recuperar ritmo.";
-  }
-
-  const risk = score >= 24 ? "Baixo" : score >= 18 ? "Médio" : "Alto";
-  return { title, copy, note, risk, score, weatherData, tire };
-}
-
-function renderStrategySimulator() {
-  const result = calculateStrategy();
-  const title = byId("strategy-result-title");
-  const copy = byId("strategy-result-copy");
-  const note = byId("strategy-note");
-  const icon = byId("strategy-result-icon");
-  const metrics = byId("strategy-metrics");
-  if (!title || !copy || !note || !metrics) return;
-
-  title.textContent = result.title;
-  copy.textContent = result.copy;
-  note.textContent = result.note;
-  metrics.innerHTML = [
-    ["Compatibilidade", `${result.weatherData.ideal.includes(byId("strategy-starting-tire")?.value) ? "Alta" : "Baixa"}`, "compatibility"],
-    ["Risco do plano", result.risk, "risk"],
-    ["Leitura", `${result.score}/30`, "score"],
-  ]
-    .map(([label, value, kind]) => `<div class="strategy-metric"><span>${label}</span><strong class="${kind}">${value}</strong></div>`)
-    .join("");
-
-  if (icon) {
-    icon.setAttribute("data-lucide", result.weatherData.icon);
-  }
-  if (window.lucide) window.lucide.createIcons();
-}
-
-function wireStrategySimulator() {
-  ["strategy-weather", "strategy-starting-tire", "strategy-stops", "strategy-pit-lap"].forEach((id) => {
-    byId(id)?.addEventListener("change", renderStrategySimulator);
-  });
-}
-
 function renderDrivers() {
   const [spotlight, ...rest] = sortedDrivers();
   byId("spotlight-name").textContent = spotlight.name;
@@ -1436,6 +1351,16 @@ function renderCalendar() {
   byId("calendar-list").innerHTML = calendarWithStatus
     .map((item) => {
       const special = calendarSpecialLabel(item);
+      const raceDate = new Date(`${item.raceDate}T12:00:00`);
+      const dateDay = new Intl.DateTimeFormat("pt-BR", { day: "2-digit" }).format(raceDate);
+      const dateMonth = new Intl.DateTimeFormat("pt-BR", { month: "short" })
+        .format(raceDate)
+        .replace(".", "");
+      const weekday = new Intl.DateTimeFormat("pt-BR", { weekday: "long" }).format(raceDate);
+      const shortWeekday = new Intl.DateTimeFormat("pt-BR", { weekday: "short" })
+        .format(raceDate)
+        .replace(".", "");
+      const dateYear = new Intl.DateTimeFormat("pt-BR", { year: "numeric" }).format(raceDate);
       return `
         <article
           class="calendar-card${item.type === "Atual" ? " is-current" : ""}"
@@ -1445,13 +1370,22 @@ function renderCalendar() {
           aria-haspopup="dialog"
           aria-label="Ver mapa do circuito de ${item.track}"
         >
-          <div>
-            <span class="round-badge">${item.round}</span>
-            <h3>${item.race}</h3>
-            <p>${item.track}</p>
+          <div class="calendar-card-heading">
+            <span class="round-badge"><span>Etapa</span>${String(item.round).padStart(2, "0")}</span>
+            <span class="calendar-status">${item.type}</span>
+          </div>
+          <div class="calendar-card-main">
+            <div class="calendar-date" aria-label="${weekday}, ${dateDay} de ${dateMonth} de ${dateYear}">
+              <span class="calendar-weekday">${shortWeekday}</span>
+              <strong>${dateDay}</strong>
+              <span>${dateMonth} · ${dateYear}</span>
+            </div>
+            <div class="calendar-race-info">
+              <h3>${item.race}</h3>
+              <p>${item.track}</p>
+            </div>
           </div>
           <div class="calendar-meta">
-            <span>${item.type}</span>
             ${special ? `<span>${special}</span>` : ""}
             <span>${item.focus}</span>
           </div>
@@ -1467,152 +1401,6 @@ function renderCalendar() {
   if (window.lucide) {
     window.lucide.createIcons();
   }
-}
-
-function renderSimulatorControls() {
-  const ordered = sortedDrivers();
-  byId("position-grid").innerHTML = pointSystem
-    .map((points, index) => {
-      const options = ordered
-        .map((driver, optionIndex) => {
-          const selected = optionIndex === index ? "selected" : "";
-          return `<option value="${driver.name}" ${selected}>${driver.name}</option>`;
-        })
-        .join("");
-
-      return `
-        <div class="position-control">
-          <label for="position-${index}">P${index + 1} · ${points} pts</label>
-          <select id="position-${index}" data-position="${index}" data-previous="${ordered[index].name}">${options}</select>
-        </div>
-      `;
-    })
-    .join("");
-
-  byId("position-grid").addEventListener("change", handlePositionChange);
-}
-
-// Quando o usuário escolhe, num select, um piloto que já está selecionado
-// em outra posição, os dois trocam de lugar — em vez de deixar o mesmo
-// piloto duplicado em duas posições ao mesmo tempo.
-function handlePositionChange(event) {
-  const changedSelect = event.target;
-  if (changedSelect.tagName !== "SELECT") return;
-
-  const newValue = changedSelect.value;
-  const oldValue = changedSelect.dataset.previous;
-
-  const duplicateSelect = [...document.querySelectorAll("#position-grid select")].find(
-    (select) => select !== changedSelect && select.value === newValue
-  );
-
-  if (duplicateSelect) {
-    // O piloto que "saiu" da posição alterada assume a posição que antes
-    // pertencia ao piloto recém-escolhido — uma troca completa.
-    duplicateSelect.value = oldValue;
-    duplicateSelect.dataset.previous = oldValue;
-  }
-
-  changedSelect.dataset.previous = newValue;
-
-  renderProjection();
-}
-
-function selectedRaceResult() {
-  return [...document.querySelectorAll("#position-grid select")].map((select) => select.value);
-}
-
-// Técnica FLIP (First, Last, Invert, Play): como cada renderização recria
-// as <tr> do zero (innerHTML), o navegador não tem "memória" de onde a
-// linha estava antes — então uma transition CSS comum não anima nada.
-// Por isso medimos a posição ANTES de re-renderizar, comparamos com a
-// posição DEPOIS, e aplicamos um transform que "engana" o navegador
-// fazendo-o animar a diferença.
-function animateRowReorder(tbody, previousPositions) {
-  const rows = [...tbody.querySelectorAll("tr")];
-
-  rows.forEach((row) => {
-    const driverName = row.dataset.driver;
-    const previousTop = previousPositions.get(driverName);
-    if (previousTop === undefined) return; // linha nova, sem posição antiga: não anima
-
-    const newTop = row.getBoundingClientRect().top;
-    const delta = previousTop - newTop;
-    if (Math.abs(delta) < 1) return; // não mudou de posição, não precisa animar
-
-    // Invert: posiciona a linha visualmente onde ela estava antes,
-    // sem transição (senão o "salto" para o lugar antigo também animaria).
-    row.style.transition = "none";
-    row.style.transform = `translateY(${delta}px)`;
-
-    // Force reflow para garantir que o navegador "registre" o estado
-    // invertido antes de soltarmos a transição abaixo.
-    row.getBoundingClientRect();
-
-    // Play: solta a transição e zera o transform — a linha desliza
-    // suavemente da posição antiga até a posição real na nova ordem.
-    requestAnimationFrame(() => {
-      row.style.transition = "transform 0.5s ease";
-      row.style.transform = "translateY(0)";
-    });
-  });
-}
-
-function renderProjection() {
-  const tbody = byId("projection-standings");
-
-  // First: mede a posição de cada linha atual antes de jogar tudo fora.
-  const previousPositions = new Map();
-  tbody.querySelectorAll("tr").forEach((row) => {
-    previousPositions.set(row.dataset.driver, row.getBoundingClientRect().top);
-  });
-
-  const result = selectedRaceResult();
-  const projected = drivers.map((driver) => {
-    const racePosition = result.indexOf(driver.name);
-    const gained = racePosition >= 0 ? pointSystem[racePosition] : 0;
-    return { ...driver, gained, projectedPoints: driver.points + gained };
-  });
-
-  const currentOrder = sortedDrivers().map((driver) => driver.name);
-  const newOrder = projected.sort((a, b) => b.projectedPoints - a.projectedPoints);
-
-  // Last: re-renderiza normalmente, com a nova ordem.
-  tbody.innerHTML = newOrder
-    .map((driver, index) => {
-      const oldPosition = currentOrder.indexOf(driver.name) + 1;
-      const change = oldPosition - (index + 1);
-      const className =
-        change > 0 ? "change-positive" : change < 0 ? "change-negative" : "change-neutral";
-      const label = change > 0 ? `+${change}` : `${change}`;
-      return `
-        <tr data-driver="${driver.name}">
-          <td>${index + 1}</td>
-          <td>${driver.name}</td>
-          <td>${driver.projectedPoints}</td>
-          <td class="${className}">${label}</td>
-        </tr>
-      `;
-    })
-    .join("");
-
-  // Invert + Play: aplica o truque visual para cada linha que mudou de lugar.
-  animateRowReorder(tbody, previousPositions);
-}
-
-function randomizeSimulator() {
-  const shuffled = [...drivers];
-  for (let index = shuffled.length - 1; index > 0; index -= 1) {
-    const swapIndex = Math.floor(Math.random() * (index + 1));
-    [shuffled[index], shuffled[swapIndex]] = [shuffled[swapIndex], shuffled[index]];
-  }
-
-  document.querySelectorAll("#position-grid select").forEach((select, index) => {
-    const name = shuffled[index]?.name || drivers[index].name;
-    select.value = name;
-    select.dataset.previous = name;
-  });
-  renderProjection();
 }
 
 // Modal do mapa do circuito: usa a mesma técnica FLIP das outras animações
@@ -1768,7 +1556,6 @@ function wireEvents() {
     renderTerm();
   });
 
-  byId("randomize-grid").addEventListener("click", randomizeSimulator);
   wireTrackModal();
 }
 
@@ -1790,12 +1577,8 @@ async function boot() {
   renderPenalties();
   renderDrivers();
   renderCalendar();
-  renderSimulatorControls();
-  renderProjection();
-  renderStrategySimulator();
   wireEvents();
   wireMobileNavigation();
-  wireStrategySimulator();
 
   if (window.lucide) {
     window.lucide.createIcons();
