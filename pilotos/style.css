@@ -27,7 +27,31 @@
 .pilots-section { background: #0c0e12; }
 .toolbar, .pilot-count, .pilot-grid { max-width: 1120px; margin-left: auto; margin-right: auto; }
 .toolbar { display: grid; gap: 14px; }
-.pilot-search { max-width: 420px; }
+.pilot-search {
+  width: 100%;
+  max-width: 420px;
+}
+.pilot-search input {
+  display: block;
+  width: 100%;
+  min-height: 48px;
+  appearance: none;
+  border: 1px solid var(--line);
+  border-radius: 12px;
+  padding: 0 16px 0 44px;
+  color: var(--text);
+  background: linear-gradient(135deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.025));
+  font: inherit;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+}
+.pilot-search input::placeholder { color: var(--muted); }
+.pilot-search input:focus {
+  border-color: rgba(245, 34, 45, 0.75);
+  outline: none;
+  background: var(--surface);
+  box-shadow: 0 0 0 4px rgba(245, 34, 45, 0.12);
+}
+.pilot-search:focus-within svg { color: var(--soft); }
 .team-filters { display: flex; flex-wrap: wrap; gap: 8px; }
 .chip {
   display: inline-flex; align-items: center; gap: 8px; min-height: 36px; padding: 0 14px;
