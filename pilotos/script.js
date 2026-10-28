@@ -47,6 +47,101 @@ let query = "";
 let team = "Todas";
 let visible = [];
 let current = -1;
+const sortOptions = ["classificacao", "numero", "idade", "nome"];
+const requestedSort = new URLSearchParams(window.location.search).get("ordem");
+let sortBy = sortOptions.includes(requestedSort) ? requestedSort : "classificacao";
+let sortDescending = false;
+let standingsLoaded = false;
+let standingsAvailable = false;
+let calendarLoaded = false;
+let remainingSchedule = null;
+
+const leaderPoints = () => {
+  const scores = PILOTS.map((p) => p.points).filter(Number.isFinite);
+  return scores.length ? Math.max(...scores) : null;
+};
+
+function renderCompareWarning() {
+  const warning = $("compare-warning");
+  let message = "";
+  if (standingsLoaded && !standingsAvailable) {
+    message = "Pontos e chance de título estão indisponíveis no momento; os dados locais continuam disponíveis.";
+  } else if (standingsAvailable && calendarLoaded && !remainingSchedule) {
+    message = "Chance de título indisponível: não foi possível carregar o calendário.";
+  }
+  warning.textContent = message;
+  warning.hidden = !message;
+}
+
+function compareRows(a, b) {
+  const rows = [
+    { label: "Posição no campeonato", key: "pos", direction: -1, format: (v) => `${v}º` },
+    { label: "Pontos", key: "points", direction: 1 },
+    { label: "Vitórias", key: "wins", direction: 1 },
+    { label: "Idade", key: "age", direction: -1, format: (v) => `${v} anos` },
+    { label: "Estreia na F1", key: "debut", direction: -1 },
+    { label: "Títulos", key: "titles", direction: 1 },
+    { label: "Equipe", key: "team" },
+    { label: "País", key: "country" },
+  ];
+  return rows.map((row) => {
+    const rawA = row.key === "age" ? (a.born ? age(a.born) : null) : row.key === "titles" ? (a.titles == null ? null : Number(a.titles)) : a[row.key];
+    const rawB = row.key === "age" ? (b.born ? age(b.born) : null) : row.key === "titles" ? (b.titles == null ? null : Number(b.titles)) : b[row.key];
+    const valueA = Number.isFinite(rawA) || typeof rawA === "string" ? rawA : null;
+    const valueB = Number.isFinite(rawB) || typeof rawB === "string" ? rawB : null;
+    const display = (value) => value === null || value === "" ? "—" : row.format ? row.format(value) : value;
+    const comparable = typeof valueA === "number" && typeof valueB === "number";
+    const aLeads = comparable && valueA !== valueB && (valueA - valueB) * row.direction > 0;
+    const bLeads = comparable && valueA !== valueB && (valueB - valueA) * row.direction > 0;
+    return { label: row.label, a: display(valueA), b: display(valueB), aLeads, bLeads };
+  });
+}
+
+function renderTitleChance(pilot, pointsLeader) {
+  if (!remainingSchedule || !Number.isFinite(pilot.points) || pointsLeader === null) return "";
+  const isLeader = pilot.points === pointsLeader;
+  const eliminated = pointsLeader - pilot.points > remainingSchedule.availablePoints;
+  const status = isLeader ? "Líder" : eliminated ? "Eliminado matematicamente" : "Ainda pode ser campeão";
+  const statusKey = isLeader ? "leader" : eliminated ? "eliminated" : "possible";
+  return `<span class="compare-title-chance" data-status="${statusKey}">${status}</span>
+    <p class="compare-title-detail">Faltam ${remainingSchedule.races} ${remainingSchedule.races === 1 ? "corrida" : "corridas"} e ${remainingSchedule.sprints} ${remainingSchedule.sprints === 1 ? "sprint" : "sprints"}, no máximo ${remainingSchedule.availablePoints} pontos. O cálculo compara a diferença para o líder com os pontos restantes possíveis.</p>`;
+}
+
+function renderCompare() {
+  const selectA = $("compare-pilot-a");
+  const selectB = $("compare-pilot-b");
+  const result = $("compare-result");
+  const a = PILOTS.find((p) => p.slug === selectA.value);
+  const b = PILOTS.find((p) => p.slug === selectB.value);
+  renderCompareWarning();
+
+  if (!a || !b) {
+    result.innerHTML = `<p class="compare-prompt">Selecione dois pilotos para ver a comparação.</p>`;
+    return;
+  }
+  if (a === b) {
+    result.innerHTML = `<p class="compare-message">Escolha outro piloto para comparar com ${a.name}.</p>`;
+    return;
+  }
+
+  const rows = compareRows(a, b);
+  const pointsLeader = leaderPoints();
+  const panel = (pilot, side) => `<article class="compare-driver" style="--team-color:${teamColors[pilot.team]}">
+    <h3>${pilot.name}</h3>
+    <dl class="compare-stats">${rows.map((row) => {
+      const leads = side === "a" ? row.aLeads : row.bLeads;
+      return `<div class="compare-stat${leads ? " is-advantage" : ""}"><dt>${row.label}</dt><dd>${row[side]}</dd></div>`;
+    }).join("")}</dl>
+    ${renderTitleChance(pilot, pointsLeader)}
+  </article>`;
+  result.innerHTML = `<div class="compare-cards">${panel(a, "a")}${panel(b, "b")}</div>`;
+}
+
+function populateCompareSelects() {
+  ["compare-pilot-a", "compare-pilot-b"].forEach((id) => {
+    $(id).insertAdjacentHTML("beforeend", PILOTS.map((p) => `<option value="${p.slug}">${p.name}</option>`).join(""));
+  });
+}
 
 function wirePhotos(root) {
   root.querySelectorAll(".pilot-photo, .pm-photo").forEach((box) => {
@@ -57,12 +152,54 @@ function wirePhotos(root) {
   });
 }
 
+function comparePilots(a, b) {
+  let order = 0;
+  if (sortBy === "classificacao") {
+    const aMissing = !Number.isFinite(a.pos);
+    const bMissing = !Number.isFinite(b.pos);
+    if (aMissing !== bMissing) return aMissing ? 1 : -1;
+    if (!aMissing) order = a.pos - b.pos;
+  } else if (sortBy === "numero") {
+    order = a.number - b.number;
+  } else if (sortBy === "idade") {
+    order = String(b.born || "").localeCompare(String(a.born || ""));
+  } else {
+    order = norm(a.name).localeCompare(norm(b.name), "pt-BR");
+  }
+
+  if (order !== 0) return sortDescending ? -order : order;
+  return norm(a.name).localeCompare(norm(b.name), "pt-BR") || PILOTS.indexOf(a) - PILOTS.indexOf(b);
+}
+
+function updateSortDirection() {
+  const button = $("sort-direction");
+  const direction = sortDescending ? "decrescente" : "crescente";
+  const nextDirection = sortDescending ? "crescente" : "decrescente";
+  const icon = sortDescending ? "arrow-down" : "arrow-up";
+  button.setAttribute("aria-label", `Ordem ${direction}. Inverter para ${nextDirection}`);
+  button.setAttribute("aria-pressed", String(sortDescending));
+  button.innerHTML = `<i data-lucide="${icon}" aria-hidden="true"></i>`;
+  window.lucide?.createIcons();
+}
+
+function saveSortToUrl() {
+  const url = new URL(window.location.href);
+  url.searchParams.set("ordem", sortBy);
+  window.history.replaceState(window.history.state, "", url);
+}
+
 function renderGrid() {
   const q = norm(query);
   visible = PILOTS.filter(
     (p) => (team === "Todas" || p.team === team) && norm(`${p.name} ${p.country} ${p.team}`).includes(q)
-  );
-  $("pilot-count").textContent = `${visible.length} ${visible.length === 1 ? "piloto" : "pilotos"}`;
+  ).sort(comparePilots);
+  const sortNames = {
+    classificacao: "classificação",
+    numero: "número",
+    idade: "idade",
+    nome: "nome",
+  };
+  $("pilot-count").textContent = `${visible.length} ${visible.length === 1 ? "piloto" : "pilotos"} · ordem ${sortNames[sortBy]} ${sortDescending ? "decrescente" : "crescente"}`;
   $("pilot-grid").innerHTML = visible.length
     ? visible.map((p, i) => {
         const [first, ...rest] = p.name.split(" ");
@@ -71,7 +208,7 @@ function renderGrid() {
           <div class="pilot-info">
             <span class="pilot-team">${p.team}</span>
             <h3><span>${first}</span>${rest.join(" ")}</h3>
-            <p>${p.country}${p.pos ? ` · ${p.pos}º no campeonato` : ""}</p>
+            <p>${p.country}${p.pos ? ` · ${p.pos}º no campeonato` : ""}${Number.isFinite(p.points) ? `<span class="pilot-distance">${p.points === leaderPoints() ? "Líder do campeonato" : `${leaderPoints() - p.points} pontos atrás do líder`}</span>` : ""}</p>
           </div></button>`;
       }).join("")
     : `<p class="empty-state">Nenhum piloto encontrado. Tente outro nome ou limpe o filtro de equipe.</p>`;
@@ -139,6 +276,21 @@ function step(d) {
 
 function wireEvents() {
   $("pilot-search").addEventListener("input", (e) => { query = e.target.value; renderGrid(); });
+  $("pilot-sort").addEventListener("change", (e) => {
+    if (!sortOptions.includes(e.target.value)) return;
+    sortBy = e.target.value;
+    sortDescending = false;
+    saveSortToUrl();
+    updateSortDirection();
+    renderGrid();
+  });
+  $("sort-direction").addEventListener("click", () => {
+    sortDescending = !sortDescending;
+    updateSortDirection();
+    renderGrid();
+  });
+  $("compare-pilot-a").addEventListener("change", renderCompare);
+  $("compare-pilot-b").addEventListener("change", renderCompare);
   $("team-filters").addEventListener("click", (e) => {
     const b = e.target.closest(".chip");
     if (!b) return;
@@ -166,29 +318,76 @@ function wireEvents() {
   toggle.addEventListener("click", () => toggle.setAttribute("aria-expanded", nav.classList.toggle("is-open")));
 }
 
-// Pontos, vitórias e posição atuais (Jolpica). Se a API falhar, o campo fica "—".
+// Pontos, vitórias e posição vêm dos standings; o calendário é consultado uma vez.
 async function loadStandings() {
   try {
     const res = await fetch("https://api.jolpi.ca/ergast/f1/current/driverstandings.json");
-    const list = (await res.json()).MRData.StandingsTable.StandingsLists[0]?.DriverStandings || [];
+    if (!res.ok) throw new Error(`Jolpica respondeu ${res.status}`);
+    const data = await res.json();
+    const lists = data.MRData?.StandingsTable?.StandingsLists;
+    const list = lists?.[0]?.DriverStandings;
+    if (!Array.isArray(list) || !list.length) throw new Error("Classificação indisponível.");
     let gridPosition = 0;
     list.forEach((s) => {
       const fam = norm(s.Driver.familyName);
       const p = PILOTS.find((x) => norm(x.name).includes(fam));
       if (p) {
         gridPosition += 1;
-        Object.assign(p, { points: Number(s.points), wins: Number(s.wins), pos: gridPosition });
+        const points = Number(s.points);
+        const wins = Number(s.wins);
+        Object.assign(p, {
+          points: Number.isFinite(points) ? points : null,
+          wins: Number.isFinite(wins) ? wins : null,
+          pos: gridPosition,
+        });
       }
     });
-    renderGrid();
+    standingsAvailable = true;
   } catch (err) {
     console.warn("Pilotos: sem dados da API.", err);
+  } finally {
+    standingsLoaded = true;
+    renderGrid();
+    renderCompare();
+  }
+}
+
+async function loadRemainingSchedule() {
+  try {
+    const year = new Date().getFullYear();
+    const res = await fetch(`https://api.jolpi.ca/ergast/f1/${year}.json`);
+    if (!res.ok) throw new Error(`Jolpica respondeu ${res.status}`);
+    const data = await res.json();
+    const races = data.MRData?.RaceTable?.Races;
+    if (!Array.isArray(races) || !races.length) throw new Error("Calendário indisponível.");
+
+    // Datas sem horário são comparadas em ISO para evitar diferenças de fuso.
+    const now = new Date();
+    const today = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, "0")}-${String(now.getDate()).padStart(2, "0")}`;
+    const future = (date) => typeof date === "string" && date > today;
+    const remainingRaces = races.filter((race) => future(race.date)).length;
+    const remainingSprints = races.filter((race) => future(race.Sprint?.date)).length;
+    remainingSchedule = {
+      races: remainingRaces,
+      sprints: remainingSprints,
+      availablePoints: remainingRaces * 25 + remainingSprints * 8,
+    };
+  } catch (err) {
+    console.warn("Pilotos: calendário indisponível.", err);
+  } finally {
+    calendarLoaded = true;
+    renderCompare();
   }
 }
 
 renderHero();
 renderFilters();
+$("pilot-sort").value = sortBy;
+updateSortDirection();
 renderGrid();
+populateCompareSelects();
+renderCompare();
 wireEvents();
 window.lucide?.createIcons();
 loadStandings();
+loadRemainingSchedule();
