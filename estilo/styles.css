@@ -340,6 +340,19 @@ h1, h2, h3, h4, h5, h6, p, dt, dd, li {
   box-shadow: 0 12px 36px rgba(245, 34, 45, 0.28);
 }
 
+.button.champion-hero-link {
+  border-color: rgba(249, 200, 70, 0.65);
+  color: var(--yellow);
+  background: rgba(8, 9, 11, 0.58);
+  transition: color 0.2s ease, background 0.2s ease, transform 0.2s ease;
+}
+
+.button.champion-hero-link:hover {
+  color: #08090b;
+  background: var(--yellow);
+  transform: translateY(-2px);
+}
+
 .button.ghost:hover,
 .button.compact:hover,
 .icon-button:hover {
@@ -1397,13 +1410,31 @@ td:last-child {
 }
 
 .driver-spotlight {
+  position: relative;
   overflow: hidden;
+}
+
+.champion-spotlight {
+  border-color: rgba(249, 200, 70, 0.38);
+  background:
+    radial-gradient(ellipse at 90% 100%, rgba(249, 200, 70, 0.08), transparent 55%),
+    linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
 }
 
 .driver-spotlight img {
   width: 100%;
   aspect-ratio: 16 / 10;
   object-fit: cover;
+}
+
+.champion-spotlight .panel-kicker {
+  gap: 8px;
+  color: var(--yellow);
+}
+
+.champion-spotlight .panel-kicker svg {
+  width: 16px;
+  height: 16px;
 }
 
 .spotlight-content {
@@ -1413,6 +1444,26 @@ td:last-child {
 .spotlight-content p {
   color: var(--soft);
   line-height: 1.65;
+}
+
+.spotlight-profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 20px;
+  color: var(--yellow);
+  font-size: 0.86rem;
+  font-weight: 800;
+}
+
+.spotlight-profile-link svg {
+  width: 17px;
+  height: 17px;
+  transition: transform 0.2s ease;
+}
+
+.spotlight-profile-link:hover svg {
+  transform: translateX(4px);
 }
 
 .driver-grid {

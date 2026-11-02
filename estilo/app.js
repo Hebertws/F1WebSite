@@ -30,7 +30,7 @@ let drivers = [
     points: 242,
     wins: 5,
     podiums: 7,
-    style: "Lidera o campeonato com {gap:George Russell} pontos de vantagem sobre Russell, destacando-se pela velocidade e consistência ao longo da temporada.",
+    style: "Campeão mundial de 2026, Kimi Antonelli conquista seu primeiro título na Fórmula 1 e entra para a história como um dos grandes nomes da nova geração.",
   },
   {
     name: "Lewis Hamilton",
@@ -1307,13 +1307,15 @@ function renderPenalties() {
 }
 
 function renderDrivers() {
-  const [spotlight, ...rest] = sortedDrivers();
+  const sorted = sortedDrivers();
+  const spotlight = drivers.find((driver) => normalizeText(driver.name) === "kimi antonelli") || sorted[0];
+  const rest = sorted.filter((driver) => driver !== spotlight);
   byId("spotlight-name").textContent = spotlight.name;
   byId("spotlight-copy").textContent = resolveStyleText(spotlight, drivers);
   byId("spotlight-stats").innerHTML = [
     ["Equipe", spotlight.team],
-    ["Vitórias", spotlight.wins],
-    ["Pódios", spotlight.podiums],
+    ["Títulos mundiais", "1"],
+    ["Temporada", "2026"],
   ]
     .map(([label, value]) => `<div><dt>${label}</dt><dd>${value}</dd></div>`)
     .join("");
