@@ -169,7 +169,7 @@
 .pilot-grid { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 16px; }
 .pilot-card {
   position: relative; display: flex; flex-direction: column; padding: 0; overflow: hidden; text-align: left;
-  border: 1px solid var(--line); border-radius: var(--radius); color: var(--text); cursor: pointer;
+  border: 1px solid var(--line); border-bottom: 4px solid var(--team-color); border-radius: var(--radius); color: var(--text); cursor: pointer;
   background: linear-gradient(180deg, rgba(255, 255, 255, 0.055), rgba(255, 255, 255, 0.02));
   transition: transform 0.25s ease, border-color 0.25s ease;
 }
@@ -199,7 +199,7 @@
   color: rgba(255, 255, 255, 0.18);
 }
 .has-photo .initials { display: none; }
-.pilot-info { position: relative; z-index: 3; margin-top: -46px; padding: 0 16px 16px; border-bottom: 4px solid var(--team-color); }
+.pilot-info { position: relative; z-index: 3; margin-top: -46px; padding: 0 16px 16px; }
 .pilot-team { color: var(--team-color); font-size: 0.78rem; font-weight: 800; }
 .pilot-info h3 {
   margin: 2px 0 6px; font-family: "Barlow Condensed", sans-serif; font-size: 1.75rem; line-height: 0.95; text-transform: uppercase;
