@@ -64,18 +64,8 @@ F1WebSite/
 ### Opção 1: abrir diretamente no navegador
 Basta abrir o arquivo `index.html` no navegador.
 
-### Opção 2: usar um servidor local
-No terminal, na pasta do projeto, execute:
-
-```bash
-python -m http.server 8000
-```
-
-Depois acesse:
-
-```text
-http://localhost:8000
-```
+### Opção 2: Domínio Netlify
+Digite f1-start.netlify.app no seu navegador.
 
 ## 🌐 Dados e fontes
 
